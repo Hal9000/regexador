@@ -6,7 +6,7 @@ class RegexadorParser
   rule(:cTICK)       { str('`') }
   rule(:cBAR)        { str('|') }
   rule(:cPERCENT)    { str('%') }
-  rule(:cCOMMA)      { str('%') }
+  rule(:cCOMMA)      { str(',') }
   rule(:cHYPHEN)     { str('-') }
   rule(:cTILDE)      { str('~') }
   rule(:cUNDERSCORE) { str('_') }

@@ -62,8 +62,8 @@ end
 
 describe "A negated character range" do
   it "can be matched as a pattern" do
-    @pattern.parse("~`a-`f").front
-    @pattern.parse("~`1-`6").front
+    @pattern.parse("`a~`f").front
+    @pattern.parse("`1~`6").front
   end
 end
 
@@ -98,7 +98,7 @@ end
 
 describe "A pattern preceded by a repetition specifier" do
   it "can be matched as a pattern" do
-    @pattern.parse("2 * `a").front
+    @pattern.parse_with_debug("2 * `a").front
     @pattern.parse("3 * 'xyz'").front
     @pattern.parse("4 * `1-`6").front
 
