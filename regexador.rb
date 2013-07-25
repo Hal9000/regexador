@@ -16,7 +16,7 @@ class RegexadorParser
   rule(:upper)       { match('[A-Z]') }
 
   rule(:comment)     { cHASH >> space >> match(".").repeat(0) }
-  rule(:endofline)   { space? >> comment.maybe >> newline }
+  rule(:endofline)   { space? >> comment.maybe >> match("\n").maybe }
 
   rule(:digit)         { match('[0-9]') }
   rule(:digits)        { digit.repeat(1) }
@@ -42,11 +42,11 @@ class RegexadorParser
 
   rule(:negated_char)  { cTILDE  >> char }   #    ~`x means /[^x]/
 
-  rule(:kANY)          { str("any ") }   # Worry about word boundaries later
-  rule(:kMANY)         { str("many ") }
-  rule(:kMAYBE)        { str("maybe ") }
-  rule(:kMATCH)        { str("match ") }
-  rule(:kEND)          { str("end ") }
+  rule(:kANY)          { str("any") }   # Worry about word boundaries later
+  rule(:kMANY)         { str("many") }
+  rule(:kMAYBE)        { str("maybe") }
+  rule(:kMATCH)        { str("match") }
+  rule(:kEND)          { str("end") }
 
   rule(:keyword)       { kANY | kMANY | kMAYBE | kMATCH | kEND }
 
@@ -75,6 +75,13 @@ class RegexadorParser
   rule(:rvalue)        { number | pattern }   # a string is-a pattern
 
   rule(:assignment)    { space? >> name >> space? >> cEQUAL >> space? >> rvalue >> endofline }
+
+  rule(:statement)     { assignment >> endofline }  # null statement is allowed
+  rule(:definitions)   { endofline | statement.repeat }
+
+  rule(:match_clause)  { space? >> kMATCH >> (pattern >> endofline.maybe).repeat(1) >> kEND }
+
+  rule(:program)       { definitions >> match_clause }   # EOF??
 
   root(:assignment)
 end

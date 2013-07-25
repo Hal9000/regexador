@@ -98,13 +98,57 @@ end
 
 describe "A pattern preceded by a repetition specifier" do
   it "can be matched as a pattern" do
-    @pattern.parse_with_debug("2 * `a").front
+    @pattern.parse("2 * `a").front
     @pattern.parse("3 * 'xyz'").front
     @pattern.parse("4 * `1-`6").front
 
     @pattern.parse("3,5 * (`a)").front
     @pattern.parse("4,7 * ('xyz')").front
     @pattern.parse("0,3 * (`1-`6)").front
+  end
+end
+
+describe "An assignment" do
+  it "can be parsed" do
+    @parser.assignment.parse("a = 5").front
+    @parser.assignment.parse("a= 5").front
+    @parser.assignment.parse("a =5").front
+    @parser.assignment.parse("a=5").front
+    @parser.assignment.parse("myvar = 'xyz'").front
+    @parser.assignment.parse('var2 = "hello"').front
+    @parser.assignment.parse('this_var = `x-`z').front
+    @parser.assignment.parse_with_debug('var3 = maybe many `x-`z').front
+  end
+end
+
+describe "A definition section" do
+  it "can be parsed" do
+    defs1 = <<-EOF
+      a = 5
+      str = "hello"
+      pat = maybe many `a-`c
+    EOF
+    @parser.definitions.parse_with_debug(defs1).front
+  end
+end
+
+describe "A match clause" do
+  it "can be parsed" do
+    mc1 = <<-EOF
+      match `a~`x end
+    EOF
+puts mc1
+    @parser.match_clause.parse_with_debug(mc1).front
+    mc2 = <<-EOF
+      match 
+        `< "tag" WB 
+        any ~`>
+        # blah blah blah
+        "</" "tag" `> 
+      end
+    EOF
+puts mc2
+    @parser.match_clause.parse_with_debug(mc2).front
   end
 end
 
