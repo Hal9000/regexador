@@ -1,7 +1,7 @@
 
-abort "Require out of order" if ! defined? RegexadorParser
+abort "Require out of order" if ! defined? Regexador
 
-class RegexadorParser
+class Regexador::Parser
   rule(:pD)            { str("D") }      # { match("\d") }
   rule(:pD0)           { str("D0") }     # { str("0") }
   rule(:pD1)           { str("D1") }     # { match("[0-1]") }

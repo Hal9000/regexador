@@ -1,6 +1,6 @@
-abort "Require out of order" if ! defined? RegexadorParser
+abort "Require out of order" if ! defined? Regexador
 
-class RegexadorParser 
+class Regexador::Parser 
   rule(:cSQUOTE)     { str("'") }
   rule(:cQUOTE)      { str('"') }
   rule(:cTICK)       { str('`') }

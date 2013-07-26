@@ -1,15 +1,17 @@
 require 'parslet'
 require 'parslet/convenience'
 
-class RegexadorParser < Parslet::Parser
-  # Only a skeleton...
+class Regexador
+  class Parser < Parslet::Parser
+    # Only a skeleton...
+  end
 end
 
 require './chars'    # These three files 
 require './predefs'  #   reopen the class
-require './keywords' #     RegexadorParser
+require './keywords' #     Regexador::Parser
 
-class RegexadorParser
+class Regexador::Parser
   rule(:space)       { match('\s').repeat(1) }
   rule(:space?)      { space.maybe }
 
@@ -82,7 +84,28 @@ class RegexadorParser
 end
 
 
-class Transform < Parslet::Transform
-  
+class Regexador::Transform < Parslet::Transform
+  # ...
+end
+
+###
+
+class Regexador
+
+  def initialize(str)
+    @code = str
+    @parser = Parser.new
+    @tree   = @parser.parse(str)
+    @regex  = Transform.apply(@tree)
+  end
+
+  def to_regex
+    @regex
+  end
+
+  def match(str)
+    @regex.match(str)  # More to come...
+  end
+
 end
 

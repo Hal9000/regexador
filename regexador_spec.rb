@@ -8,10 +8,10 @@ class Object
   end
 end
 
-describe RegexadorParser do
+describe Regexador::Parser do
 
 before(:all) do
-  @parser = RegexadorParser.new 
+  @parser = Regexador::Parser.new 
   @pattern = @parser.pattern
 end
 
@@ -137,7 +137,6 @@ describe "A match clause" do
     mc1 = <<-EOF
       match `a~`x end
     EOF
-puts mc1
     @parser.match_clause.parse_with_debug(mc1).front
     mc2 = <<-EOF
       match 
@@ -147,9 +146,35 @@ puts mc1
         "</" "tag" `> 
       end
     EOF
-puts mc2
     @parser.match_clause.parse_with_debug(mc2).front
   end
 end
 
+describe "An entire program" do
+  it "can be parsed" do
+    prog1 = <<-EOF
+      dot = "."
+      num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+      match WB num dot num dot num dot num WB end
+    EOF
+    @parser.program.parse_with_debug(prog1).front
+
+    prog2 = <<-EOF
+      # Warning: This one likely has errors!
+  
+      visa     = `4 12\*D maybe 3\*D
+      mc       = `5 D5 14\*D
+      amex     = `3 '47' 13\*D
+      diners   = `3 (`0 D5 | '68' D) 11\*D
+      discover = `6 ("011" | `5 2\*D) 12\*D
+      jcb      = ("2131"|"1800"|"35" 3\*D) 11\*D
+  
+      match visa | mc | amex | diners | discover | jcb end
+    EOF
+    @parser.program.parse_with_debug(prog2).front
+  end
 end
+
+
+end
+

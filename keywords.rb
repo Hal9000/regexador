@@ -1,7 +1,7 @@
 
-abort "Require out of order" if ! defined? RegexadorParser
+abort "Require out of order" if ! defined? Regexador
 
-class RegexadorParser
+class Regexador::Parser
   rule(:kANY)          { str("any") }   # Worry about word boundaries later
   rule(:kMANY)         { str("many") }
   rule(:kMAYBE)        { str("maybe") }
