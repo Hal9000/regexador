@@ -25,4 +25,8 @@ class RegexadorParser
   rule(:pBLANKS)       { str("BLANKS") } # { space }
   rule(:pBOS)          { str("BOS") }    # { match("^") }
   rule(:pEOS)          { str("EOS") }    # { match("$") }
+
+  rule(:predef)        { pD0 | pD1 | pD2 | pD3 | pD4 | pD5 | pD6 | pD7 | pD8 | pD9 | pD |
+                         pX | pWB | pCRLF | pCR | pLF | pNL | pSPACES | pSPACE | 
+                         pBLANKS | pBLANK | pBOS | pEOS }
 end

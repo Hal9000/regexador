@@ -13,6 +13,8 @@ class RegexadorParser
   rule(:cEQUAL)      { str('=') }
   rule(:cHASH)       { str('#') }
   rule(:cTIMES)      { str('*') }
+  rule(:cAT)         { str("@") }
+  rule(:cCOLON)      { str(":") }
   rule(:cLPAREN)     { str('(') }
   rule(:cRPAREN)     { str(')') }
   rule(:cNEWLINE)    { str("\n") }
