@@ -2,7 +2,7 @@
 abort "Require out of order" if ! defined? Regexador
 
 class Regexador::Parser
-  rule(:kANY)          { str("any") }   # Worry about word boundaries later
+  rule(:kANY)          { str("any") }
   rule(:kMANY)         { str("many") }
   rule(:kMAYBE)        { str("maybe") }
   rule(:kMATCH)        { str("match") }
