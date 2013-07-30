@@ -5,12 +5,46 @@ require './regexador'
 require 'parslet/rig/rspec'
 
 class Object
-  def front
-    self.line_and_column.should == [1,1]
+  def succeeds
+    self.should_not == nil 
   end
 end
 
-describe Regexador::Parser do
+describe Regexador do
+
+ @oneliners = 
+   [
+     [ "simple range",    "match `a-`f end", 
+                          /[a-f]/ ],
+     [ "negated range",   "match `c~`p end", 
+                          /[^c-p]/ ],
+     [ "negated char",    "match ~`d end", 
+                          /[^d]/ ],
+     [ "POSIX class",     "match %alnum end", 
+                          /[[:alnum:]]/ ],
+     [ "bracket class",   "match 'prstu' end", 
+                          /[prstu]/ ],
+     [ "neg. bracket",    "match ~'lmno' end", 
+                          /[^lmno]/ ],
+     [ "BOS",             "match BOS end",    # silly
+                          /^/ ],
+     [ "EOS",             "match EOS end",    # silly
+                          /$/ ],
+     [ "WB",              "match WB end",     # silly
+                          /\b/ ],
+     [ "string",          'match "xyz" end',
+                          /xyz/ ],
+     [ "repeat 1",        'match 5 * "xyz" end',
+                          /(xyz){5}/ ],
+     [ "repeat 2",        'match 3,4 * %alpha end',
+                          /([[:alpha:]]){3,4}/ ],
+     [ "any",             'match any "abc" end',
+                          /(abc)*/ ],
+     [ "many",            'match any "def" end',
+                          /(def)*/ ],
+     [ "maybe",           'match any "ghi" end',
+                          /(ghi)?/ ],
+   ]
 
 before(:all) do
   @parser = Regexador::Parser.new 
@@ -19,107 +53,107 @@ end
 
 describe "A special character" do
   it "can be matched as a pattern" do
-    @parser.cSQUOTE.parse_with_debug("'").front
-    @parser.cHASH.parse('#').front
-    @parser.cNEWLINE.parse("\n").front
-    @parser.cEQUAL.parse('=').front
+    @parser.cSQUOTE.parse_with_debug("'").succeeds
+    @parser.cHASH.parse('#').succeeds
+    @parser.cNEWLINE.parse("\n").succeeds
+    @parser.cEQUAL.parse('=').succeeds
   end
 end
 
 describe "A character literal" do
   it "can be matched as a pattern" do
-    @pattern.parse('`a').front
-    @pattern.parse('``').front
-    @pattern.parse('`\\').front
+    @pattern.parse('`a').succeeds
+    @pattern.parse('``').succeeds
+    @pattern.parse('`\\').succeeds
   end
 end
 
 describe "A character string" do
   it "can be matched as a pattern" do
-    @pattern.parse('"abcde"').front
-    @pattern.parse('""').front
+    @pattern.parse('"abcde"').succeeds
+    @pattern.parse('""').succeeds
   end
 end
 
 describe "A character class" do
   it "can be matched as a pattern" do
-    @pattern.parse("'abcdef'").front
-    @pattern.parse("'x'").front
+    @pattern.parse("'abcdef'").succeeds
+    @pattern.parse("'x'").succeeds
   end
 end
 
 describe "A negated character class" do
   it "can be matched as a pattern" do
-    @pattern.parse("~'abcdef'").front
-    @pattern.parse("~'x'").front
+    @pattern.parse("~'abcdef'").succeeds
+    @pattern.parse("~'x'").succeeds
   end
 end
 
 describe "A character range" do
   it "can be matched as a pattern" do
-    @pattern.parse("`a-`f").front
-    @pattern.parse("`1-`6").front
+    @pattern.parse("`a-`f").succeeds
+    @pattern.parse("`1-`6").succeeds
   end
 end
 
 describe "A negated character range" do
   it "can be matched as a pattern" do
-    @pattern.parse("`a~`f").front
-    @pattern.parse("`1~`6").front
+    @pattern.parse("`a~`f").succeeds
+    @pattern.parse("`1~`6").succeeds
   end
 end
 
 describe "A pattern preceded by 'any/many/maybe'" do
   it "can be matched as a pattern" do
-    @pattern.parse("any `a").front
-    @pattern.parse("many 'xyz'").front
-    @pattern.parse("maybe `1-`6").front
+    @pattern.parse("any `a").succeeds
+    @pattern.parse("many 'xyz'").succeeds
+    @pattern.parse("maybe `1-`6").succeeds
 
-    @pattern.parse("any (`a)").front
-    @pattern.parse("many ('xyz')").front
-    @pattern.parse("maybe (`1-`6)").front
+    @pattern.parse("any (`a)").succeeds
+    @pattern.parse("many ('xyz')").succeeds
+    @pattern.parse("maybe (`1-`6)").succeeds
   end
 end
 
 describe "A set of alternative patterns" do
   it "can be matched as a pattern" do
-    @pattern.parse("`a-`f | 'xyz'").front
-    @pattern.parse('`1-`6| maybe "#"').front
-    @pattern.parse('`a | `b|`c  | `d').front
+    @pattern.parse("`a-`f | 'xyz'").succeeds
+    @pattern.parse('`1-`6| maybe "#"').succeeds
+    @pattern.parse('`a | `b|`c  | `d').succeeds
   end
 end
 
 describe "A set of concatenated patterns" do
   it "can be matched as a pattern" do
-    @pattern.parse("`a-`f 'xyz'").front
-    @pattern.parse('`1-`6 maybe "#"').front
-    @pattern.parse('`a  `b `c    `d').front
-    @pattern.parse('"this" "that" maybe "other"').front
+    @pattern.parse("`a-`f 'xyz'").succeeds
+    @pattern.parse('`1-`6 maybe "#"').succeeds
+    @pattern.parse('`a  `b `c    `d').succeeds
+    @pattern.parse('"this" "that" maybe "other"').succeeds
   end
 end
 
 describe "A pattern preceded by a repetition specifier" do
   it "can be matched as a pattern" do
-    @pattern.parse("2 * `a").front
-    @pattern.parse("3 * 'xyz'").front
-    @pattern.parse("4 * `1-`6").front
+    @pattern.parse("2 * `a").succeeds
+    @pattern.parse("3 * 'xyz'").succeeds
+    @pattern.parse("4 * `1-`6").succeeds
 
-    @pattern.parse("3,5 * (`a)").front
-    @pattern.parse("4,7 * ('xyz')").front
-    @pattern.parse("0,3 * (`1-`6)").front
+    @pattern.parse("3,5 * (`a)").succeeds
+    @pattern.parse("4,7 * ('xyz')").succeeds
+    @pattern.parse("0,3 * (`1-`6)").succeeds
   end
 end
 
 describe "An assignment" do
   it "can be parsed" do
-    @parser.assignment.parse("a = 5").front
-    @parser.assignment.parse("a= 5").front
-    @parser.assignment.parse("a =5").front
-    @parser.assignment.parse("a=5").front
-    @parser.assignment.parse("myvar = 'xyz'").front
-    @parser.assignment.parse('var2 = "hello"').front
-    @parser.assignment.parse('this_var = `x-`z').front
-    @parser.assignment.parse_with_debug('pat = maybe many `x-`z').front
+    @parser.assignment.parse("a = 5").succeeds
+    @parser.assignment.parse("a= 5").succeeds
+    @parser.assignment.parse("a =5").succeeds
+    @parser.assignment.parse("a=5").succeeds
+    @parser.assignment.parse("myvar = 'xyz'").succeeds
+    @parser.assignment.parse('var2 = "hello"').succeeds
+    @parser.assignment.parse('this_var = `x-`z').succeeds
+    @parser.assignment.parse_with_debug('pat = maybe many `x-`z').succeeds
   end
 end
 
@@ -133,13 +167,17 @@ end
 describe "A definition section" do
   it "can be parsed" do
     defs1 = "a = 5\nstr = \"hello\"\n"
-    @parser.definitions.parse_with_debug(defs1).front
+    @parser.definitions.parse_with_debug(defs1).succeeds
     defs2 = <<-EOF
       a = 5
+      # comment...
       pat = maybe many `a-`c
+      # empty line follows:
+
       str = "hello"
+      # another comment...
     EOF
-    @parser.definitions.parse_with_debug(defs2).front
+    @parser.definitions.parse_with_debug(defs2).succeeds
   end
 end
 
@@ -148,7 +186,7 @@ describe "A one-line match clause" do
     mc1 = <<-EOF
       match `a~`x end
     EOF
-    @parser.match_clause.parse_with_debug(mc1).front
+    @parser.match_clause.parse_with_debug(mc1).succeeds
   end
 end
 
@@ -162,9 +200,17 @@ describe "A multiline match clause" do
         "</" "tag" `> 
       end
     EOF
-    @parser.multiline_clause.parse_with_debug(mc2).front
+    @parser.multiline_clause.parse_with_debug(mc2).succeeds
   end
 end
+
+describe "An entire one-line program" do
+  it "can be parsed" do
+    prog = "match `a-`f end"
+    @parser.parse_with_debug(prog).succeeds
+  end
+end
+
 
 describe "An entire program" do
   it "can be parsed" do
@@ -173,7 +219,7 @@ describe "An entire program" do
       num = "25" D5 | `2 D4 D | maybe D1 1,2*D
       match WB num dot num dot num dot num WB end
     EOF
-    @parser.program.parse_with_debug(prog1).front
+    @parser.program.parse_with_debug(prog1).succeeds
 
     prog2 = <<-EOF
       # Warning: This one likely has errors!
@@ -187,9 +233,23 @@ describe "An entire program" do
   
       match visa | mc | amex | diners | discover | jcb end
     EOF
-    @parser.program.parse_with_debug(prog2).front
+    @parser.program.parse_with_debug(prog2).succeeds
   end
 end
+
+#### "Real" tests
+
+@oneliners.each do |desc, prog, wanted|
+  describe "A one-line program (#{desc})" do
+    it "can be parsed" do
+      @parser.parse(prog).succeeds
+    end
+    it "can be converted to a regex" do
+      Regexador.new(prog).to_regex.should == wanted
+    end
+  end 
+end
+
 
 end
 

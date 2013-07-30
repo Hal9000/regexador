@@ -14,7 +14,7 @@ class Regexador::Parser
   rule(:pD8)           { str("D8") }     # /[0-8]/
   rule(:pD9)           { str("D9") }     # /\d/
   rule(:pX)            { str("X") }      # /./
-  rule(:pWB)           { str("WB") }     # /\b/
+  rule(:pWB)           { str("WB").as(:wb) }     # /\b/
   rule(:pCR)           { str("CR") }     # /\r/
   rule(:pLF)           { str("LF") }     # /\n/
   rule(:pNL)           { str("NL") }     # /\n/
@@ -23,8 +23,8 @@ class Regexador::Parser
   rule(:pSPACES)       { str("SPACES") } # 
   rule(:pBLANK)        { str("BLANK") }  # 
   rule(:pBLANKS)       { str("BLANKS") } # 
-  rule(:pBOS)          { str("BOS") }    # /^/
-  rule(:pEOS)          { str("EOS") }    # /$/
+  rule(:pBOS)          { str("BOS").as(:bos) }    # /^/
+  rule(:pEOS)          { str("EOS").as(:eos) }    # /$/
 
   rule(:predef)        { pD0 | pD1 | pD2 | pD3 | pD4 | pD5 | pD6 | pD7 | pD8 | pD9 | pD |
                          pX | pWB | pCRLF | pCR | pLF | pNL | pSPACES | pSPACE | 
