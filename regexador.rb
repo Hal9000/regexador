@@ -19,7 +19,7 @@ class Regexador::Parser
   rule(:upper)         { match('[A-Z]') }
 
   rule(:comment)       { cHASH >> space >> match(".").repeat(0) }
-  rule(:endofline)     { space? >> comment.maybe >> match("\n") }
+  rule(:endofline)     { space? >> comment.maybe >> cNEWLINE }
 
   rule(:digit)         { match('[0-9]') }
   rule(:digits)        { digit.repeat(1) }
