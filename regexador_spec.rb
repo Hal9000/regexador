@@ -2,6 +2,8 @@ require 'pp'
 
 require './regexador'
 
+require 'parslet/rig/rspec'
+
 class Object
   def front
     self.line_and_column.should == [1,1]
@@ -121,21 +123,37 @@ describe "An assignment" do
   end
 end
 
+describe "A keyword used as a variable name" do
+  it "will not parse" do
+    @parser.assignment.should_not parse("endx = 'hello'")
+#   @parser.assignment.parse("endx = 'hello'")
+  end
+end
+
 describe "A definition section" do
   it "can be parsed" do
     defs1 = "a = 5\nstr = \"hello\"\n"
     @parser.definitions.parse_with_debug(defs1).front
-    defs2 = " a = 5\n pat = maybe many `a-`c\n str = \"hello\"\n"
+    defs2 = <<-EOF
+      a = 5
+      pat = maybe many `a-`c
+      str = "hello"
+    EOF
     @parser.definitions.parse_with_debug(defs2).front
   end
 end
 
-describe "A match clause" do
+describe "A one-line match clause" do
   it "can be parsed" do
     mc1 = <<-EOF
       match `a~`x end
     EOF
     @parser.match_clause.parse_with_debug(mc1).front
+  end
+end
+
+describe "A multiline match clause" do
+  it "can be parsed" do
     mc2 = <<-EOF
       match 
         `< "tag" WB 
@@ -144,7 +162,7 @@ describe "A match clause" do
         "</" "tag" `> 
       end
     EOF
-    @parser.match_clause.parse_with_debug(mc2).front
+    @parser.multiline_clause.parse_with_debug(mc2).front
   end
 end
 

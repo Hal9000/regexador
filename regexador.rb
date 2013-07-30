@@ -12,8 +12,10 @@ require './predefs'  #   reopen the class
 require './keywords' #     Regexador::Parser
 
 class Regexador::Parser
-  rule(:space)         { match('\s').repeat(1) }
+  rule(:space)         { match[" \t"].repeat(1) }
   rule(:space?)        { space.maybe }
+  rule(:white)         { (endofline | match("\s")).repeat(1) }
+  rule(:white?)        { white.maybe }
 
   rule(:lower)         { match('[a-z]') }
   rule(:upper)         { match('[A-Z]') }
@@ -26,7 +28,7 @@ class Regexador::Parser
   rule(:quoted)        { match('[^"]').repeat(0) }
   rule(:single_quoted) { match("[^']").repeat(0) }
   rule(:printable)     { match('[!-~]') }
-  rule(:name)          { lower >> (lower | cUNDERSCORE | digit).repeat(0) }
+  rule(:name)          { keyword.absent? >> lower >> (lower | cUNDERSCORE | digit).repeat(0) }
 
   rule(:variable)      { name }
   rule(:capture_var)   { (cAT >> name) }
@@ -73,9 +75,21 @@ class Regexador::Parser
 
   rule(:definitions)   { (assignment >> endofline).repeat(0) }
 
-  rule(:capture)       { (capture_var >> space? >> cEQUAL >> space?).maybe >> pattern >> endofline }
+  rule(:capture)       { (capture_var >> space? >> cEQUAL >> space?).maybe >> pattern } # >> endofline }
+# rule(:capture)       { pattern }
 
-  rule(:match_clause)  { space? >> kMATCH >> capture.repeat(1) >> kEND >> endofline }
+  rule(:oneline_clause) { space? >> kMATCH >> capture >> kEND >> endofline }
+
+# rule(:multiline_clause) { space? >> kMATCH >> white     >> (capture >> endofline).repeat(1) >> kEND >> endofline }
+  rule(:single_line)      { endofline | capture >> endofline }
+  rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1) >> space? >> kEND }
+
+  rule(:match_clause)  { oneline_clause | multiline_clause }
+
+# rule(:match_clause)  { space? >> kMATCH >> capture.repeat(1) >> kEND >> endofline }
+# rule(:match_clause)  { space? >> kMATCH >> capture }
+
+  
 
   rule(:program)       { definitions >> match_clause }   # EOF??
 
