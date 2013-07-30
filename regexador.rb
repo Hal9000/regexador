@@ -12,14 +12,14 @@ require './predefs'  #   reopen the class
 require './keywords' #     Regexador::Parser
 
 class Regexador::Parser
-  rule(:space)       { match('\s').repeat(1) }
-  rule(:space?)      { space.maybe }
+  rule(:space)         { match('\s').repeat(1) }
+  rule(:space?)        { space.maybe }
 
-  rule(:lower)       { match('[a-z]') }
-  rule(:upper)       { match('[A-Z]') }
+  rule(:lower)         { match('[a-z]') }
+  rule(:upper)         { match('[A-Z]') }
 
-  rule(:comment)     { cHASH >> space >> match(".").repeat(0) }
-  rule(:endofline)   { space? >> comment.maybe >> match("\n").maybe }
+  rule(:comment)       { cHASH >> space >> match(".").repeat(0) }
+  rule(:endofline)     { space? >> comment.maybe >> match("\n") }
 
   rule(:digit)         { match('[0-9]') }
   rule(:digits)        { digit.repeat(1) }
@@ -63,20 +63,19 @@ class Regexador::Parser
   rule(:match_item)    { space? >> (simple_match | qualifier | repetition | parenthesized) >> space? }
                        #            `~"'           kwd         num          (
 
-  rule(:concat)        { (match_item >> (space? >> space? >> match_item).repeat(0))}
+  rule(:concat)        { (match_item >> (space? >> match_item).repeat(0))}
  
-  rule(:pattern)       { (concat >> space? >> (space? >> cBAR >> space? >> concat).repeat(0)) >> space? }
+  rule(:pattern)       { concat >> space? >> (cBAR >> space? >> concat).repeat(0) }
 
-  rule(:rvalue)        { number | pattern }   # a string is-a pattern
+  rule(:rvalue)        { pattern | number }   # a string is-a pattern
 
-  rule(:assignment)    { space? >> name >> space? >> cEQUAL >> space? >> rvalue >> endofline }
+  rule(:assignment)    { space? >> name >> space? >> cEQUAL >> space? >> rvalue }
 
-  rule(:statement)     { assignment >> endofline }  # null statement is allowed
-  rule(:definitions)   { (statement.repeat(0) >> endofline) }
+  rule(:definitions)   { (assignment >> endofline).repeat(0) }
 
-  rule(:capture)       { (capture_var >> space? >> cEQUAL >> space?).maybe >> pattern >> endofline.maybe }
+  rule(:capture)       { (capture_var >> space? >> cEQUAL >> space?).maybe >> pattern >> endofline }
 
-  rule(:match_clause)  { space? >> kMATCH >> capture.repeat(1) >> kEND >> endofline.maybe }
+  rule(:match_clause)  { space? >> kMATCH >> capture.repeat(1) >> kEND >> endofline }
 
   rule(:program)       { definitions >> match_clause }   # EOF??
 

@@ -117,18 +117,16 @@ describe "An assignment" do
     @parser.assignment.parse("myvar = 'xyz'").front
     @parser.assignment.parse('var2 = "hello"').front
     @parser.assignment.parse('this_var = `x-`z').front
-    @parser.assignment.parse_with_debug('var3 = maybe many `x-`z').front
+    @parser.assignment.parse_with_debug('pat = maybe many `x-`z').front
   end
 end
 
 describe "A definition section" do
   it "can be parsed" do
-    defs1 = <<-EOF
-      a = 5
-      str = "hello"
-      pat = maybe many `a-`c
-    EOF
+    defs1 = "a = 5\nstr = \"hello\"\n"
     @parser.definitions.parse_with_debug(defs1).front
+    defs2 = " a = 5\n pat = maybe many `a-`c\n str = \"hello\"\n"
+    @parser.definitions.parse_with_debug(defs2).front
   end
 end
 
@@ -162,19 +160,18 @@ describe "An entire program" do
     prog2 = <<-EOF
       # Warning: This one likely has errors!
   
-      visa     = `4 12\*D maybe 3\*D
-      mc       = `5 D5 14\*D
-      amex     = `3 '47' 13\*D
-      diners   = `3 (`0 D5 | '68' D) 11\*D
-      discover = `6 ("011" | `5 2\*D) 12\*D
-      jcb      = ("2131"|"1800"|"35" 3\*D) 11\*D
+      visa     = `4 12*D maybe 3*D
+      mc       = `5 D5 14*D
+      amex     = `3 '47' 13*D
+      diners   = `3 (`0 D5 | '68' D) 11*D
+      discover = `6 ("011" | `5 2*D) 12*D
+      jcb      = ("2131"|"1800"|"35" 3*D) 11*D
   
       match visa | mc | amex | diners | discover | jcb end
     EOF
     @parser.program.parse_with_debug(prog2).front
   end
 end
-
 
 end
 
