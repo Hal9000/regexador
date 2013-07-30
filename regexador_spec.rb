@@ -17,7 +17,7 @@ end
 
 describe "A special character" do
   it "can be matched as a pattern" do
-    @parser.cSQUOTE.parse("'").front
+    @parser.cSQUOTE.parse_with_debug("'").front
     @parser.cHASH.parse('#').front
     @parser.cNEWLINE.parse("\n").front
     @parser.cEQUAL.parse('=').front
@@ -28,7 +28,7 @@ describe "A character literal" do
   it "can be matched as a pattern" do
     @pattern.parse('`a').front
     @pattern.parse('``').front
-    @pattern.parse('`\\').front # Ruby string is escaped
+    @pattern.parse('`\\').front
   end
 end
 

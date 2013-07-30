@@ -29,8 +29,8 @@ class Regexador::Parser
   rule(:name)          { lower >> (lower | cUNDERSCORE | digit).repeat(0) }
 
   rule(:variable)      { name }
-  rule(:capture_var)   { cAT >> name }
-  rule(:parameter)     { cCOLON >> name }
+  rule(:capture_var)   { (cAT >> name) }
+  rule(:parameter)     { (cCOLON >> name) }
 
   rule(:posix_class)   { cPERCENT >> name }
 
@@ -44,7 +44,7 @@ class Regexador::Parser
   rule(:char)          { cTICK >> printable }
 
   rule(:simple_range)  { char >> cHYPHEN >> char }
-  rule(:negated_range) { char >> cTILDE  >> simple_range }
+  rule(:negated_range) { char >> cTILDE  >> char }
   rule(:range)         { negated_range | simple_range }
 
   rule(:negated_char)  { cTILDE  >> char }   #    ~`x means /[^x]/
@@ -91,7 +91,6 @@ end
 ###
 
 class Regexador
-
   def initialize(str)
     @code = str
     @parser = Parser.new
@@ -106,6 +105,5 @@ class Regexador
   def match(str)
     @regex.match(str)  # More to come...
   end
-
 end
 
