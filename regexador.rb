@@ -127,9 +127,11 @@ class Regexador
     xform = Transform.new
 puts "Parser gives:"
 pp @tree
+puts
     @regex_str = xform.apply(@tree)
 puts "Transform gives:"
 p @regex_str
+puts
     @regex = Regexp.compile(@regex_str)
   end
 

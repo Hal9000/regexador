@@ -46,6 +46,20 @@ describe Regexador do
                           /(ghi)?/ ],
    ]
 
+ @simple_patterns = 
+     [
+       '`a',        '``',           '`\\',           '"abcde"',  
+       '""',        "'abcdef'",     "'x'",           "~'abcdef'",
+       "~'x'",      "`a-`f",        "`1-`6",         "`a~`f",
+       "`1~`6",     "any `a",       "many 'xyz'",    "maybe `1-`6",  
+       "any (`a)",  "many ('xyz')", "maybe (`1-`6)", "`a-`f | 'xyz'",  
+       '`1-`6| maybe "#"',          '`a | `b|`c|`d',  
+       "`a-`f 'xyz'",               '`1-`6 maybe "#"',  
+       '`a  `b `c    `d',           '"this" "that" maybe "other"',  
+       "2 * `a",    "3 * 'xyz'",    "4 * `1-`6",     "3,5 * (`a)",  
+       "4,7 * ('xyz')",             "0,3 * (`1-`6)"  
+     ]
+
 before(:all) do
   @parser = Regexador::Parser.new 
   @pattern = @parser.pattern
@@ -60,89 +74,14 @@ describe "A special character" do
   end
 end
 
-describe "A character literal" do
-  it "can be matched as a pattern" do
-    @pattern.parse('`a').succeeds
-    @pattern.parse('``').succeeds
-    @pattern.parse('`\\').succeeds
-  end
+@simple_patterns.each do |pat|
+  describe "A one-line program (#{pat.inspect})" do
+    it "can be parsed" do
+      @pattern.parse(pat).succeeds
+    end
+  end 
 end
 
-describe "A character string" do
-  it "can be matched as a pattern" do
-    @pattern.parse('"abcde"').succeeds
-    @pattern.parse('""').succeeds
-  end
-end
-
-describe "A character class" do
-  it "can be matched as a pattern" do
-    @pattern.parse("'abcdef'").succeeds
-    @pattern.parse("'x'").succeeds
-  end
-end
-
-describe "A negated character class" do
-  it "can be matched as a pattern" do
-    @pattern.parse("~'abcdef'").succeeds
-    @pattern.parse("~'x'").succeeds
-  end
-end
-
-describe "A character range" do
-  it "can be matched as a pattern" do
-    @pattern.parse("`a-`f").succeeds
-    @pattern.parse("`1-`6").succeeds
-  end
-end
-
-describe "A negated character range" do
-  it "can be matched as a pattern" do
-    @pattern.parse("`a~`f").succeeds
-    @pattern.parse("`1~`6").succeeds
-  end
-end
-
-describe "A pattern preceded by 'any/many/maybe'" do
-  it "can be matched as a pattern" do
-    @pattern.parse("any `a").succeeds
-    @pattern.parse("many 'xyz'").succeeds
-    @pattern.parse("maybe `1-`6").succeeds
-
-    @pattern.parse("any (`a)").succeeds
-    @pattern.parse("many ('xyz')").succeeds
-    @pattern.parse("maybe (`1-`6)").succeeds
-  end
-end
-
-describe "A set of alternative patterns" do
-  it "can be matched as a pattern" do
-    @pattern.parse("`a-`f | 'xyz'").succeeds
-    @pattern.parse('`1-`6| maybe "#"').succeeds
-    @pattern.parse('`a | `b|`c  | `d').succeeds
-  end
-end
-
-describe "A set of concatenated patterns" do
-  it "can be matched as a pattern" do
-    @pattern.parse("`a-`f 'xyz'").succeeds
-    @pattern.parse('`1-`6 maybe "#"').succeeds
-    @pattern.parse('`a  `b `c    `d').succeeds
-    @pattern.parse('"this" "that" maybe "other"').succeeds
-  end
-end
-
-describe "A pattern preceded by a repetition specifier" do
-  it "can be matched as a pattern" do
-    @pattern.parse("2 * `a").succeeds
-    @pattern.parse("3 * 'xyz'").succeeds
-    @pattern.parse("4 * `1-`6").succeeds
-
-    @pattern.parse("3,5 * (`a)").succeeds
-    @pattern.parse("4,7 * ('xyz')").succeeds
-    @pattern.parse("0,3 * (`1-`6)").succeeds
-  end
-end
 
 describe "An assignment" do
   it "can be parsed" do
@@ -159,7 +98,7 @@ end
 
 describe "A keyword used as a variable name" do
   it "will not parse" do
-    @parser.assignment.should_not parse("endx = 'hello'")
+    @parser.assignment.should_not parse("end = 'hello'")
 #   @parser.assignment.parse("endx = 'hello'")
   end
 end
