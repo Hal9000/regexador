@@ -1,7 +1,7 @@
+require './regexador'
 require 'pp'
 
-require './regexador'
-
+require 'parslet/convenience'
 require 'parslet/rig/rspec'
 
 class Object
