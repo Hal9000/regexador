@@ -14,50 +14,102 @@ describe Regexador do
 
  @oneliners = 
    [
-     [ "simple range",    "match `a-`f end", 
-                          /[a-f]/ ],
-     [ "negated range",   "match `c~`p end", 
-                          /[^c-p]/ ],
-     [ "negated char",    "match ~`d end", 
-                          /[^d]/ ],
-     [ "POSIX class",     "match %alnum end", 
-                          /[[:alnum:]]/ ],
-     [ "bracket class",   "match 'prstu' end", 
-                          /[prstu]/ ],
-     [ "neg. bracket",    "match ~'lmno' end", 
-                          /[^lmno]/ ],
-     [ "BOS",             "match BOS end",    # silly
-                          /^/ ],
-     [ "EOS",             "match EOS end",    # silly
-                          /$/ ],
-     [ "WB",              "match WB end",     # silly
-                          /\b/ ],
-     [ "string",          'match "xyz" end',
-                          /xyz/ ],
-     [ "repeat 1",        'match 5 * "xyz" end',
-                          /(xyz){5}/ ],
-     [ "repeat 2",        'match 3,4 * %alpha end',
-                          /([[:alpha:]]){3,4}/ ],
-     [ "any",             'match any "abc" end',
-                          /(abc)*/ ],
-     [ "many",            'match any "def" end',
-                          /(def)*/ ],
-     [ "maybe",           'match any "ghi" end',
-                          /(ghi)?/ ],
+     [ "`a-`f",       /[a-f]/,
+                      [ "alpha", "xyzb", "c" ],          # good
+                      [ "xyz", "", "ABC"],               # bad
+                      ],
+     [ "`c~`p",       /[^c-p]/,
+                      [ "ab", "rst" ],                   # good
+                      [ "def", "m123", "" ],             # bad
+                      ],
+     [ "~`d",         /[^d]/,
+                      [ "xyz", "123" ],                  # good
+                      [ "mad", "dog" ],                  # bad
+                      ],
+     [ "%alnum",      /[[:alnum:]]/,
+                      [ "abc365", "237", "xyz"],         # good
+                      [ "---", ":,.#$@-"],               # bad
+                      ],
+     [ "'prstu'",     /[prstu]/,
+                      [ "du", "ppp", "sr"],              # good
+                      [ "abc", "xyz"],                   # bad
+                      ],
+     [ "~'lmno'",     /[^lmno]/,
+                      [ "abacus", "peccata" ],           # good
+                      [ "oil", "pepino", "hydrogen" ],   # bad
+                      ],
+     [ "BOS",         /^/,                               # matches anything
+                      [ "", ],                           # good
+#                     [ "", ],                           # bad
+                      ],
+     [ "EOS",         /$/,                               # matches anything
+                      [ "", ],                           # good
+#                     [ "", ],                           # bad
+                      ],
+     [ "WB",          /\b/,
+                      [ "xyz", ],                        # good
+                      [ "", "---" ],                     # bad
+                      ],
+     [ '"xyz"',       /xyz/,
+                      [ "xyz", "abcxyzdef" ],            # good
+                      [ "abc", "xydefz" ],               # bad
+                      ],
+     [ '5 * "xyz"',   /(xyz){5}/,
+                      [ "xyzxyzxyzxyzxyz", ],           # good
+                      [ "xyzxyzxyzxyz", ],              # bad
+                      ],
+     [ '3,4 * %alpha', /([[:alpha:]]){3,4}/,
+                      [ "abc", "abcd" ],                # good
+                      [ "ab", "x"],                     # bad
+                      ],
+     [ 'any "abc"',   /(abc)*/,                         # matches everything?
+                      [ "", "abc", "abcabc", "xyz" ],   # good
+#                     [ "", ],                          # bad
+                      ],
+     [ 'many "def"',  /(def)+/,
+                      [ "def", "defdef", "defdefdef" ], # good
+                      [ "", "de", "xyz"],               # bad
+                      ],
+     [ 'maybe "ghi"', /(ghi)?/,                         # matches everything?
+                      [ "", "ghi", "abghicd", "gh" ],   # good
+#                     [ "", ],           # bad
+                      ],
    ]
 
  @simple_patterns = 
      [
-       '`a',        '``',           '`\\',           '"abcde"',  
-       '""',        "'abcdef'",     "'x'",           "~'abcdef'",
-       "~'x'",      "`a-`f",        "`1-`6",         "`a~`f",
-       "`1~`6",     "any `a",       "many 'xyz'",    "maybe `1-`6",  
-       "any (`a)",  "many ('xyz')", "maybe (`1-`6)", "`a-`f | 'xyz'",  
-       '`1-`6| maybe "#"',          '`a | `b|`c|`d',  
-       "`a-`f 'xyz'",               '`1-`6 maybe "#"',  
-       '`a  `b `c    `d',           '"this" "that" maybe "other"',  
-       "2 * `a",    "3 * 'xyz'",    "4 * `1-`6",     "3,5 * (`a)",  
-       "4,7 * ('xyz')",             "0,3 * (`1-`6)"  
+       '`a',
+       '``',
+       '`\\',
+       '"abcde"',
+       '""',
+       "'abcdef'",
+       "'x'",
+       "~'abcdef'",
+       "~'x'",
+       "`a-`f",
+       "`1-`6",
+       "`a~`f",
+       "`1~`6",
+       "any `a",
+       "many 'xyz'",
+       "maybe `1-`6",
+       "any (`a)",
+       "many ('xyz')",
+       "maybe (`1-`6)",
+       "`a-`f | 'xyz'",
+       '`1-`6| maybe "#"',
+       '`a | `b|`c|`d',
+       "`a-`f 'xyz'",
+       '`1-`6 maybe "#"',
+       '`a  `b `c    `d',
+       '"this" "that" maybe "other"',
+       "2 * `a",
+       "3 * 'xyz'",
+       "4 * `1-`6",
+       "3,5 * (`a)",
+       "4,7 * ('xyz')",
+       "0,3 * (`1-`6)"  
      ]
 
 before(:all) do
@@ -178,13 +230,28 @@ end
 
 #### "Real" tests
 
-@oneliners.each do |desc, prog, wanted|
-  describe "A one-line program (#{desc})" do
+@oneliners.each do |pat, wanted, good, bad|
+  describe "A one-pattern program (#{pat})" do
+    prog = "match #{pat} end"
     it "can be parsed" do
       @parser.parse(prog).succeeds
     end
+    rx = nil
     it "can be converted to a regex" do
-      Regexador.new(prog).to_regex.should == wanted
+      rx = Regexador.new(prog).to_regex
+      rx.should == wanted
+    end
+    good ||= []
+    bad  ||= []
+    good.each do |str|
+      it "matches #{str.inspect}" do
+        str =~ rx
+      end
+    end
+    bad.each do |str|
+      it "fails to match #{str.inspect}" do
+        str !~ rx
+      end
     end
   end 
 end
