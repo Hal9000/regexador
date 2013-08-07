@@ -5,19 +5,24 @@ end
 require './regexador_parser'
 require './regexador_xform'
 
+require 'parslet/convenience'
+
 class Regexador
   def initialize(str)
     @code = str
     @parser = Parser.new
-    @tree   = @parser.parse(str)
+    @tree   = @parser.parse_with_debug(str)
+
     xform = Transform.new
-puts "Parser gives:"
-pp @tree
-puts
+    puts "Parser gives:"
+    pp @tree
+    puts
+
     @regex_str = xform.apply(@tree)
-puts "Transform gives:"
-p @regex_str
-puts
+    puts "Transform gives:"
+    p @regex_str
+    puts
+
     @regex = Regexp.compile(@regex_str)
   end
 

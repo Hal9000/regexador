@@ -52,7 +52,7 @@ class Regexador::Parser
   rule(:simple_match)  { predef | range | negated_char | posix_class | string | char_class | char | variable }
                        # X        `a-`c   ~`a            %             "abc"    'abc'        `a 
 
-  rule(:qualifier)     { (kANY | kMANY | kMAYBE) >> match_item }
+  rule(:qualifier)     { (kANY | kMANY | kMAYBE).as(:qualifier) >> match_item.as(:match_item) }
 
   rule(:repeat1)       { number.as(:num1) }
   rule(:repeat2)       { repeat1 >> cCOMMA >> number.as(:num2) }
