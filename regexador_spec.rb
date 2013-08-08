@@ -14,6 +14,10 @@ describe Regexador do
 
  @oneliners = 
    [
+     [ "`x",          /x/,
+                      [ "abcx", "xyzb", "x" ],           # good
+                      [ "yz", "", "ABC"],                # bad
+                      ],
      [ "`a-`f",       /[a-f]/,
                       [ "alpha", "xyzb", "c" ],          # good
                       [ "xyz", "", "ABC"],               # bad

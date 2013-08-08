@@ -2,6 +2,42 @@
 abort "Require out of order" if ! defined? Regexador
 
 class Regexador::Parser
+
+  Predef2Regex = {
+    pD:  "[0-9]", 
+    pD0: "0", 
+    pD1: "[01]", 
+    pD2: "[0-2]", 
+    pD3: "[0-3]", 
+    pD4: "[0-4]", 
+    pD5: "[0-5]", 
+    pD6: "[0-6]", 
+    pD7: "[0-7]", 
+    pD8: "[0-8]", 
+    pD9: "[0-9]", 
+    pX:  ".", 
+
+    pCR:     "\r", 
+    pLF:     "\n", 
+    pNL:     "\n", 
+    pCRLF:   "\r\n", 
+
+    pSPACE:  "\s",      # ?
+    pSPACES: "\s+", 
+    pBLANK:  "\s", 
+    pBLANKS: "\s+", 
+
+    pWB: "\\b", 
+    pBOS: "^", 
+    pEOS: "$"
+  }
+
+  syms = Predef2Regex.keys
+
+  syms.each do |sym|
+    rule(sym) { str(sym.to_s[1..-1]) }  # strip leading "p"
+  end
+
   rule(:pD)            { str("D") }      # /\d/
   rule(:pD0)           { str("D0") }     # /0/
   rule(:pD1)           { str("D1") }     # /[0-1]/
@@ -14,7 +50,7 @@ class Regexador::Parser
   rule(:pD8)           { str("D8") }     # /[0-8]/
   rule(:pD9)           { str("D9") }     # /\d/
   rule(:pX)            { str("X") }      # /./
-  rule(:pWB)           { str("WB").as(:wb) }     # /\b/
+  rule(:pWB)           { str("WB").as(:predef) }     # /\b/
   rule(:pCR)           { str("CR") }     # /\r/
   rule(:pLF)           { str("LF") }     # /\n/
   rule(:pNL)           { str("NL") }     # /\n/
@@ -23,10 +59,17 @@ class Regexador::Parser
   rule(:pSPACES)       { str("SPACES") } # 
   rule(:pBLANK)        { str("BLANK") }  # 
   rule(:pBLANKS)       { str("BLANKS") } # 
-  rule(:pBOS)          { str("BOS").as(:bos) }    # /^/
-  rule(:pEOS)          { str("EOS").as(:eos) }    # /$/
+  rule(:pBOS)          { str("BOS").as(:predef) }    # /^/
+  rule(:pEOS)          { str("EOS").as(:predef) }    # /$/
 
   rule(:predef)        { pD0 | pD1 | pD2 | pD3 | pD4 | pD5 | pD6 | pD7 | pD8 | pD9 | pD |
-                         pX | pWB | pCRLF | pCR | pLF | pNL | pSPACES | pSPACE | 
-                         pBLANKS | pBLANK | pBOS | pEOS }
+                          pX | pWB | pCRLF | pCR | pLF | pNL | pSPACES | pSPACE | 
+                          pBLANKS | pBLANK | pBOS | pEOS }
+
+# rule(:predef) do
+#   result = pD0
+#   Predef2Regex.keys.each {|sym| result |= sym }
+#   result
+# end
+
 end

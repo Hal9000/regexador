@@ -4,172 +4,73 @@ abort "Require out of order" if ! defined? Regexador
 
 class Regexador::Transform < Parslet::Transform
 
-  class Node  # a general-purpose tree node
-    def initialize(hash = {})
-      hash.each do |name, value|
-        self.class_eval { attr_accessor name }
-        self.send("#{name}=", value.to_s)
+  class Node < BasicObject
+    def self.make(*fields, &block)
+      klass = ::Class.new
+      klass.class_eval do
+        fields.each {|field| attr_accessor field }
+        define_method :initialize do |*values|
+          fields.zip(values) {|f,v| self.send("#{f}=", v) }
+        end
+        define_method(:to_regex) { instance_eval(&block) }
+        define_method(:to_str)   { to_regex }
+        define_method(:to_s)     { to_regex }
+        define_method(:inspect)  { to_regex }
       end
-    end
-  
-    def method_missing(meth, *args)
-      if args.empty?
-        instance_variable_get("@" + meth.to_s)
-      elsif args.size == 1 and meth.to_s[-1..-1] == "="
-        instance_variable_set("@" + meth.to_s[0..-2], args.first)
-      else
-        raise "No such method '#{meth}'"
-      end
-    end
-  end
-  
-  class Pattern < Node
-    def to_regex
-      raise "Never overridden"
-    end
-
-    def to_str
-      to_regex
-    end
-
-    def to_s
-      to_regex
-    end
-
-    def inspect
-       to_regex  # "#{self.class}:(#{to_regex}) "
+      klass
     end
   end
 
   # Later: Remember escaping for chars (char, c1, c2, nchar, ...)
 
-  class Char < Pattern
-    def to_regex
-      @char
-    end
-  end
-  
-  class Range < Pattern
-    def to_regex
-      "[#@c1-#@c2]"
-    end
-  end
-  
-  class NegatedRange < Range
-    def to_regex
-      "[^#@nr1-#@nr2]"
-    end
+  XChar        = Node.make(:char)       { "#@char" }
+  CharRange    = Node.make(:c1, :c2)    { "[#@c1-#@c2]" }
+  NegatedRange = Node.make(:nr1, :nr2)  { "[^#@nr1-#@nr2]" }
+  NegatedChar  = Node.make(:nchar)      { "[^#@nchar]" }    # More like a range really
+  POSIXClass   = Node.make(:pclass)     { "[[:#@pclass:]]" }
+  CharClass    = Node.make(:char_class) { "[#@char_class]" }
+  NegatedClass = Node.make(:neg_class)  { "[^#@neg_class]" }
+  Predefined   = Node.make(:pre) do 
+    sym = "p#@pre".to_sym
+    str = Regexador::Parser::Predef2Regex[sym]
+    raise "#@pre is not handled yet" if str.nil?
+    str
   end
 
-  class NegatedChar < Pattern  # More like a range really
-    def to_regex
-      "[^#@nchar]"
-    end
-  end
-  
-  class POSIXClass < Pattern
-    def to_regex
-      "[[:#@pclass:]]"
-    end
-  end
+  StringNode = Node.make(:string)                   { "#@string" }
+  Repeat1    = Node.make(:num1, :match_item)        { "(#@match_item){#@num1}" }
+  Repeat2    = Node.make(:num1, :num2, :match_item) { "(#@match_item){#@num1,#@num2}" }
+  Any        = Node.make(:match_item)               { "(#@match_item)*" }
+  Many       = Node.make(:match_item)               { "(#@match_item)+" }
+  Maybe      = Node.make(:match_item)               { "(#@match_item)?" }
 
-  class CharClass < Pattern
-    def to_regex
-      "[#@char_class]"
-    end
-  end
-
-  class NegatedClass < Pattern
-    def to_regex
-      "[^#@neg_class]"
-    end
-  end
-
-  class Predefined < Pattern
-    def to_regex
-      case @pre.to_sym
-        when :pBOS then "^"
-        when :pEOS then "$"
-        when :pWB  then "\\b"
-      else
-        raise "#@pre is not handled yet"
-      end
-    end
-  end
-
-  class StringNode < Pattern
-    def to_regex
-      @string
-    end
-  end
-
-  class Repeat1 < Pattern
-    def to_regex
-      "(#@match_item){#@num1}"
-    end
-  end
-
-  class Repeat2 < Pattern
-    def to_regex
-      "(#@match_item){#@num1,#@num2}"
-    end
-  end
-
-  class Any < Pattern
-    def to_regex
-      "(#@match_item)*"
-    end
-  end
-
-  class Many < Pattern
-    def to_regex
-      "(#@match_item)+"
-    end
-  end
-
-  class Maybe < Pattern
-    def to_regex
-      "(#@match_item)?"
-    end
-  end
-
+# exit
 
   # Actual transformation rules
 
-  rule(:char => simple(:char))    { Char.new(char: char) }
-  rule(:c1 => simple(:c1), :c2 => simple(:c2)) { Range.new(c1: c1, c2: c2) }
+  rule(:char => simple(:ch))    { XChar.new(ch) }
+  rule(:c1 => simple(:c1), :c2 => simple(:c2)) { CharRange.new(c1, c2) }
 
-  rule(:nr1 => simple(:nr1), :nr2 => simple(:nr2)) { NegatedRange.new(nr1: nr1, nr2: nr2) }
-  rule(:nchar => simple(:nchar))  { NegatedChar.new(nchar: nchar) } # Don't forget escaping
+  rule(:nr1 => simple(:nr1), :nr2 => simple(:nr2)) { NegatedRange.new(nr1, nr2) }
+  rule(:nchar => simple(:nchar))  { NegatedChar.new(nchar) } # Don't forget escaping
 
-  rule(:pclass => simple(:pclass)) { POSIXClass.new(pclass: pclass) }
+  rule(:pclass => simple(:pclass)) { POSIXClass.new(pclass) }
 
-  rule(:char_class => simple(:char_class)) { CharClass.new(char_class: char_class) }
-  rule(:neg_class => simple(:neg_class))   { NegatedClass.new(neg_class: neg_class) }
+  rule(:char_class => simple(:char_class)) { CharClass.new(char_class) }
+  rule(:neg_class => simple(:neg_class))   { NegatedClass.new(neg_class) }
 
-  rule(:bos => simple(:pBOS)) { Predefined.new(pre: :pBOS) }   # How to simplify these?
-  rule(:eos => simple(:pEOS)) { Predefined.new(pre: :pEOS) } 
-  rule(:wb  => simple(:pWB))  { Predefined.new(pre: :pWB) }
+  rule(:predef => simple(:content)) { Predefined.new(content) }
 
-  rule(:string => simple(:string))  { StringNode.new(string: string) }
+  rule(:string => simple(:string))  { StringNode.new(string) }
 
-  rule(:num1 => simple(:num1), :match_item => simple(:match_item)) { Repeat1.new(num1: num1, match_item: match_item) }
+  rule(:num1 => simple(:num1), :match_item => simple(:match_item)) { Repeat1.new(num1, match_item) }
   
-  rule(:num1 => simple(:num1), :num2 => simple(:num2), :match_item => simple(:match_item)) { Repeat2.new(num1: num1, num2: num2, match_item: match_item) }
+  rule(:num1 => simple(:num1), :num2 => simple(:num2), :match_item => simple(:match_item)) { Repeat2.new(num1, num2, match_item) }
 
 
-  rule(:qualifier => simple(:qualifier), :match_item => simple(:match_item)) do
-    case qualifier 
-      when Regexador::Parser::ANY
-        Any.new(match_item: match_item)
-      when Regexador::Parser::MANY
-        Many.new(match_item: match_item)
-      when Regexador::Parser::MAYBE
-        Maybe.new(match_item: match_item)
-    end
-  end
-
-  rule(sequence(:foo)) { str = ""; foo.each {|x| str << x.to_s } }
+  rule(:qualifier => 'any',   :match_item => simple(:match_item)) { Any.new(match_item) }
+  rule(:qualifier => 'many',  :match_item => simple(:match_item)) { Many.new(match_item) }
+  rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
 
 end
 
