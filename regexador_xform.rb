@@ -41,6 +41,8 @@ class Regexador::Transform < Parslet::Transform
     end
   end
 
+  # Later: Remember escaping for chars (char, c1, c2, nchar, ...)
+
   class Char < Pattern
     def to_regex
       @char
@@ -59,7 +61,7 @@ class Regexador::Transform < Parslet::Transform
     end
   end
 
-  class NegatedChar < Pattern  # more like a range really
+  class NegatedChar < Pattern  # More like a range really
     def to_regex
       "[^#@nchar]"
     end
@@ -166,5 +168,8 @@ class Regexador::Transform < Parslet::Transform
         Maybe.new(match_item: match_item)
     end
   end
+
+  rule(sequence(:foo)) { str = ""; foo.each {|x| str << x.to_s } }
+
 end
 

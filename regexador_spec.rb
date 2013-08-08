@@ -74,6 +74,14 @@ describe Regexador do
                       [ "", "ghi", "abghicd", "gh" ],   # good
 #                     [ "", ],           # bad
                       ],
+     [ '"abc" "def"', /abcdef/,
+                      [ "abcdefghi", "xyzabcdef" ],     # good
+                      [ "", "abcxyzdef" ],              # bad
+                      ],
+     [ '"abc"' + "'def'", /abc[def]/,
+                      [ "abcd", "abce" ],               # good
+                      [ "", "abcx" ],                   # bad
+                      ],
    ]
 
  @simple_patterns = 

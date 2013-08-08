@@ -14,12 +14,12 @@ class Regexador
     @tree   = @parser.parse_with_debug(str)
 
     xform = Transform.new
-    puts "Parser gives:"
+    puts "\n\nParser gives:"
     pp @tree
     puts
 
     @regex_str = xform.apply(@tree)
-    puts "Transform gives:"
+    puts "\n\nTransform gives:"
     p @regex_str
     puts
 
