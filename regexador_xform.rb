@@ -8,7 +8,7 @@ class Regexador::Transform < Parslet::Transform
     def self.make(*fields, &block)
       klass = ::Class.new(self) do
         fields.each {|field| attr_accessor field }
-        define_method :fields do fields.dup end
+        define_method(:fields) { fields.dup }
         define_method(:to_regex, &block)
       end
       klass
