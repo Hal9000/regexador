@@ -15,23 +15,22 @@ class Regexador::Transform < Parslet::Transform
     end
 
     def initialize *values
-      fields.zip(values) { |f,v| 
-        self.send("#{f}=", v) }
+      fields.zip(values) { |f,v| self.send("#{f}=", v) }
     end
 
     def to_regex
-      raise NotImplementedError, "Please implement #to_regex for #{short_name}."
+      raise NotImplementedError, 
+            "Please implement #to_regex for #{short_name}."
     end
 
     def short_name
-      n = self.class.name
-      n[n.rindex('::')+2..-1]
+      str = self.class.name
+      str[str.rindex('::')+2..-1]
     end
 
     def inspect
-      short_name + "(" + 
-        fields.map { |f| "#{f}=#{self.send(f).inspect}" }.join(', ') + 
-        ")"
+      data = fields.map {|f| "#{f}=#{self.send(f).inspect}" }.join(', ')
+      short_name + "(" + data + ")"
     end
   end
 
@@ -58,8 +57,7 @@ class Regexador::Transform < Parslet::Transform
   Many       = Node.make(:match_item)               { "(#{match_item.to_regex})+" }
   Maybe      = Node.make(:match_item)               { "(#{match_item.to_regex})?" }
 
-  Sequence   = Node.make(:elements) {
-    elements.map(&:to_regex).join }
+  Sequence   = Node.make(:elements) { elements.map(&:to_regex).join }
 
 # exit
 
@@ -90,5 +88,7 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
 
   rule(sequence(:elements)) { Sequence.new(elements) }
+
+  
 end
 

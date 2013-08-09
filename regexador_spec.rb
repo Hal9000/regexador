@@ -86,6 +86,45 @@ describe Regexador do
                       [ "abcd", "abce" ],               # good
                       [ "", "abcx" ],                   # bad
                       ],
+     [ '"abc" | "def"', /(abc|def)/,
+                      [ "abc", "xyzabc123", "xdefy" ],  # good
+                      [ "", "abde", "ab c d ef" ],      # bad
+                      ],
+     [ '"ab" "c" | "d" "ef"', /(abc|def)/,
+                      [ "abc", "xyzabc123", "xdefy" ],  # good
+                      [ "", "abde", "ab c d ef" ],      # bad
+                      ],
+   ]
+
+ @programs = [
+     [ 'var1 = "abc"
+        var2 = "def"
+        match var1 var2 end',
+        /abcdef/,
+        ["abcdefghi", "xyzabcdef" ],     # good
+        [ "", "abcxyzdef" ],              # bad
+      ],
+     [ 'var1 = "abc"
+        var2 = "def"
+        
+        # Test a blank line and comment as well.
+ 
+        match   # multiline match with comment
+          var1
+          var2
+        end',
+        /abcdef/,
+        ["abcdefghi", "xyzabcdef" ],     # good
+        [ "", "abcxyzdef" ],              # bad
+      ],
+     [ 'dot = "."
+        num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+        match WB num dot num dot num dot num WB end',
+
+       /\b(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\b/,                     # regex
+       [ "127.0.0.1", "255.254.93.22" ],            # good
+       [ "", "7.8.9", "3.4.5.6.7", "1.2.3.256" ],   # bad
+     ],
    ]
 
  @simple_patterns = 
@@ -245,9 +284,7 @@ end
 @oneliners.each do |pat, wanted, good, bad|
   describe "A one-pattern program (#{pat})" do
     prog = "match #{pat} end"
-    it "can be parsed" do
-      @parser.parse(prog).succeeds
-    end
+    it("can be parsed") { @parser.parse(prog).succeeds }
     rx = nil
     it "can be converted to a regex" do
       rx = Regexador.new(prog).to_regex
@@ -255,19 +292,29 @@ end
     end
     good ||= []
     bad  ||= []
-    good.each do |str|
-      it "matches #{str.inspect}" do
-        str =~ rx
-      end
-    end
-    bad.each do |str|
-      it "fails to match #{str.inspect}" do
-        str !~ rx
-      end
-    end
+    good.each {|str| it("matches #{str.inspect}") { str =~ rx } }
+    bad.each  {|str| it("fails to match #{str.inspect}") { str !~ rx } }
   end 
 end
 
+prognum = 0
+
+@programs.each do |prog, wanted, good, bad|
+  prognum += 1
+  p [prog, wanted, good, bad]
+  describe "A complete program (##{prognum})" do
+    it("can be parsed") { @parser.parse(prog).succeeds }
+    rx = nil
+    it "can be converted to a regex" do
+      rx = Regexador.new(prog).to_regex
+      rx.should == wanted
+    end
+    good ||= []
+    bad  ||= []
+    good.each {|str| it("matches #{str.inspect}") { str =~ rx } }
+    bad.each  {|str| it("fails to match #{str.inspect}") { str !~ rx } }
+  end 
+end
 
 end
 
