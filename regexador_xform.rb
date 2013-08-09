@@ -4,29 +4,43 @@ abort "Require out of order" if ! defined? Regexador
 
 class Regexador::Transform < Parslet::Transform
 
-  class Node < BasicObject
+  class Node
     def self.make(*fields, &block)
-      klass = ::Class.new
-      klass.class_eval do
+      klass = ::Class.new(self) do
         fields.each {|field| attr_accessor field }
-        define_method :initialize do |*values|
-          fields.zip(values) {|f,v| self.send("#{f}=", v) }
-        end
-        define_method(:to_regex) { instance_eval(&block) }
-        define_method(:to_str)   { to_regex }
-        define_method(:to_s)     { to_regex }
-        define_method(:inspect)  { to_regex }
+        define_method :fields do fields.dup end
+        define_method(:to_regex, &block)
       end
       klass
+    end
+
+    def initialize *values
+      fields.zip(values) { |f,v| 
+        self.send("#{f}=", v) }
+    end
+
+    def to_regex
+      raise NotImplementedError, "Please implement #to_regex for #{short_name}."
+    end
+
+    def short_name
+      n = self.class.name
+      n[n.rindex('::')+2..-1]
+    end
+
+    def inspect
+      short_name + "(" + 
+        fields.map { |f| "#{f}=#{self.send(f).inspect}" }.join(', ') + 
+        ")"
     end
   end
 
   # Later: Remember escaping for chars (char, c1, c2, nchar, ...)
 
   XChar        = Node.make(:char)       { "#@char" }
-  CharRange    = Node.make(:c1, :c2)    { "[#@c1-#@c2]" }
-  NegatedRange = Node.make(:nr1, :nr2)  { "[^#@nr1-#@nr2]" }
-  NegatedChar  = Node.make(:nchar)      { "[^#@nchar]" }    # More like a range really
+  CharRange    = Node.make(:c1, :c2)    { "[#{c1.to_regex}-#{c2.to_regex}]" }
+  NegatedRange = Node.make(:nr1, :nr2)  { "[^#{nr1.to_regex}-#{nr2.to_regex}]" }
+  NegatedChar  = Node.make(:nchar)      { "[^#{nchar.to_regex}]" }    # More like a range really
   POSIXClass   = Node.make(:pclass)     { "[[:#@pclass:]]" }
   CharClass    = Node.make(:char_class) { "[#@char_class]" }
   NegatedClass = Node.make(:neg_class)  { "[^#@neg_class]" }
@@ -37,12 +51,15 @@ class Regexador::Transform < Parslet::Transform
     str
   end
 
-  StringNode = Node.make(:string)                   { "#@string" }
-  Repeat1    = Node.make(:num1, :match_item)        { "(#@match_item){#@num1}" }
-  Repeat2    = Node.make(:num1, :num2, :match_item) { "(#@match_item){#@num1,#@num2}" }
-  Any        = Node.make(:match_item)               { "(#@match_item)*" }
-  Many       = Node.make(:match_item)               { "(#@match_item)+" }
-  Maybe      = Node.make(:match_item)               { "(#@match_item)?" }
+  StringNode = Node.make(:string)                   { string }
+  Repeat1    = Node.make(:num1, :match_item)        { "(#{match_item.to_regex}){#@num1}" }
+  Repeat2    = Node.make(:num1, :num2, :match_item) { "(#{match_item.to_regex}){#@num1,#@num2}" }
+  Any        = Node.make(:match_item)               { "(#{match_item.to_regex})*" }
+  Many       = Node.make(:match_item)               { "(#{match_item.to_regex})+" }
+  Maybe      = Node.make(:match_item)               { "(#{match_item.to_regex})?" }
+
+  Sequence   = Node.make(:elements) {
+    elements.map(&:to_regex).join }
 
 # exit
 
@@ -72,5 +89,6 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'many',  :match_item => simple(:match_item)) { Many.new(match_item) }
   rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
 
+  rule(sequence(:elements)) { Sequence.new(elements) }
 end
 
