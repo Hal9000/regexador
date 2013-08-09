@@ -18,12 +18,13 @@ class Regexador
     pp @tree
     puts
 
-    @regex_str = xform.apply(@tree)
+    @regex_tree = xform.apply(@tree)
     puts "\n\nTransform gives:"
-    p @regex_str
+    p @regex_tree
     puts
 
-    @regex = Regexp.compile(@regex_str)
+    @regex = Regexp.compile(
+      @regex_tree.to_regex)
   end
 
   def to_regex
