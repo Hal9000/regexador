@@ -10,6 +10,7 @@ class Regexador::Transform < Parslet::Transform
         fields.each {|field| attr_accessor field }
         define_method(:fields) { fields.dup }
         define_method(:to_regex, &block)
+        define_method(:to_s) { to_regex.to_s }
       end
       klass
     end
@@ -37,9 +38,9 @@ class Regexador::Transform < Parslet::Transform
   # Later: Remember escaping for chars (char, c1, c2, nchar, ...)
 
   XChar        = Node.make(:char)       { "#@char" }
-  CharRange    = Node.make(:c1, :c2)    { "[#{c1.to_regex}-#{c2.to_regex}]" }
-  NegatedRange = Node.make(:nr1, :nr2)  { "[^#{nr1.to_regex}-#{nr2.to_regex}]" }
-  NegatedChar  = Node.make(:nchar)      { "[^#{nchar.to_regex}]" }    # More like a range really
+  CharRange    = Node.make(:c1, :c2)    { "[#@c1-#@c2]" }
+  NegatedRange = Node.make(:nr1, :nr2)  { "[^#@nr1-#@nr2]" }
+  NegatedChar  = Node.make(:nchar)      { "[^#@nchar]" }    # More like a range really
   POSIXClass   = Node.make(:pclass)     { "[[:#@pclass:]]" }
   CharClass    = Node.make(:char_class) { "[#@char_class]" }
   NegatedClass = Node.make(:neg_class)  { "[^#@neg_class]" }
@@ -51,11 +52,11 @@ class Regexador::Transform < Parslet::Transform
   end
 
   StringNode = Node.make(:string)                   { string }
-  Repeat1    = Node.make(:num1, :match_item)        { "(#{match_item.to_regex}){#@num1}" }
-  Repeat2    = Node.make(:num1, :num2, :match_item) { "(#{match_item.to_regex}){#@num1,#@num2}" }
-  Any        = Node.make(:match_item)               { "(#{match_item.to_regex})*" }
-  Many       = Node.make(:match_item)               { "(#{match_item.to_regex})+" }
-  Maybe      = Node.make(:match_item)               { "(#{match_item.to_regex})?" }
+  Repeat1    = Node.make(:num1, :match_item)        { "(#@match_item){#@num1}" }
+  Repeat2    = Node.make(:num1, :num2, :match_item) { "(#@match_item){#@num1,#@num2}" }
+  Any        = Node.make(:match_item)               { "(#@match_item)*" }
+  Many       = Node.make(:match_item)               { "(#@match_item)+" }
+  Maybe      = Node.make(:match_item)               { "(#@match_item)?" }
 
   Sequence   = Node.make(:elements) { elements.map(&:to_regex).join }
 
@@ -81,7 +82,6 @@ class Regexador::Transform < Parslet::Transform
   rule(:num1 => simple(:num1), :match_item => simple(:match_item)) { Repeat1.new(num1, match_item) }
   
   rule(:num1 => simple(:num1), :num2 => simple(:num2), :match_item => simple(:match_item)) { Repeat2.new(num1, num2, match_item) }
-
 
   rule(:qualifier => 'any',   :match_item => simple(:match_item)) { Any.new(match_item) }
   rule(:qualifier => 'many',  :match_item => simple(:match_item)) { Many.new(match_item) }
