@@ -60,6 +60,21 @@ class Regexador::Transform < Parslet::Transform
 
   Sequence   = Node.make(:elements) { elements.map(&:to_regex).join }
 
+## ALternation???
+
+  Assign     = Node.make(:var, :rvalue)  { "" }  # Doesn't actually translate directly.
+
+  class Assign
+    class << self
+      attr_accessor :bindings
+    end
+
+    def store
+      self.class.bindings ||= {}
+      self.class.bindings[@var] = @rvalue.to_regex
+    end
+  end
+
 # exit
 
   # Actual transformation rules
@@ -87,8 +102,12 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'many',  :match_item => simple(:match_item)) { Many.new(match_item) }
   rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
 
-  rule(sequence(:elements)) { Sequence.new(elements) }
+  rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assign.new(@var, @rvalue).store }
 
+  rule(:alternatives => simple(:pattern)) { "(#@pattern)" }           # HEF
+  rule(:alternatives => sequence(:alternatives)) { "(" + @alternatives.map(&:to_s).join("|") + ")" }  # HEF
+
+  rule(sequence(:elements)) { Sequence.new(elements) }
   
 end
 

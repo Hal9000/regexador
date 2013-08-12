@@ -10,21 +10,27 @@ require 'parslet/convenience'
 class Regexador
   def initialize(str)
     @code = str
+puts
+puts "---- Code: ------"
+puts str
+puts "-----------------"
+
     @parser = Parser.new
     @tree   = @parser.parse_with_debug(str)
 
+#   Transform::Assign.bindings = {}
     xform = Transform.new
-    puts "\n\nParser gives:"
-    pp @tree
-    puts
+puts "\n\nParser gives:"
+pp @tree
+
+puts "\nAssign.bindings:"
+pp Regexador::Transform::Assign.bindings
 
     @regex_tree = xform.apply(@tree)
-    puts "\n\nTransform gives:"
-    p @regex_tree
-    puts
+puts "\n\nTransform gives:"
+p @regex_tree
 
-    @regex = Regexp.compile(
-      @regex_tree.to_regex)
+    @regex = Regexp.compile(@regex_tree.to_regex)
   end
 
   def to_regex

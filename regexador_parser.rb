@@ -65,11 +65,11 @@ class Regexador::Parser
 
   rule(:concat)        { (match_item >> (space? >> match_item).repeat(0))}
  
-  rule(:pattern)       { concat >> space? >> (cBAR >> space? >> concat).repeat(0) }
+  rule(:pattern)       { (concat >> space? >> (cBAR >> space? >> concat).repeat(0)).as(:alternatives) }  # HEF
 
   rule(:rvalue)        { pattern | number }   # a string is-a pattern
 
-  rule(:assignment)    { space? >> name >> space? >> cEQUAL >> space? >> rvalue }
+  rule(:assignment)    { space? >> name.as(:var) >> space? >> cEQUAL >> space? >> rvalue.as(:rvalue) }
 
   rule(:definitions)   { (endofline | assignment >> endofline).repeat(0) }
 
