@@ -92,6 +92,9 @@ class Regexador::Transform < Parslet::Transform
   rule(:predef => simple(:content)) { Predefined.new(content) }
 
   rule(:string => simple(:string))  { StringNode.new(string) }
+  # When the string is empty, parslet returns an empty array for lack of content. 
+  # Map that to the empty string node.
+  rule(:string => sequence(:string))  { StringNode.new('') }
 
   rule(:num1 => simple(:num1), :match_item => simple(:match_item)) { Repeat1.new(num1, match_item) }
   
