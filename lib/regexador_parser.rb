@@ -83,7 +83,7 @@ class Regexador::Parser
 
   rule(:match_clause)  { oneline_clause | multiline_clause }
 
-  rule(:program)       { definitions >> match_clause }
+  rule(:program)       { definitions.as(:definitions) >> match_clause.as(:match) }
 
   root(:program)
 end

@@ -64,6 +64,13 @@ class Regexador::Transform < Parslet::Transform
   Alternation = Node.make(:elements) { '(' + elements.map(&:to_s).join('|') + ')' }
 
   Assign     = Node.make(:var, :rvalue)  { "" }  # Doesn't actually translate directly.
+  Usage      = Node.make(:var) { 
+    "var(#{var})" }
+    #lookup(var) }
+
+  Program    = Node.make(:definitions, :match) { 
+    # definitions.each { |d| d.store }
+    match.to_s }
 
   class Assign < Node    # For clarity: Really already is-a Node
     class << self
@@ -104,7 +111,7 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'many',  :match_item => simple(:match_item)) { Many.new(match_item) }
   rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
 
-  rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assign.new(@var, @rvalue).store }
+  rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assign.new(@var, @rvalue) }
 
   rule(:alternation => simple(:pattern))        { pattern }
   rule(:alternation => sequence(:alternatives)) { Alternation.new(alternatives) }
@@ -112,5 +119,9 @@ class Regexador::Transform < Parslet::Transform
   rule(:sequence => simple(:element))    { element }
   rule(:sequence => sequence(:elements)) { Sequence.new(elements) }
   
+  rule(:var => simple(:name)) { Usage.new(name) }
+
+  rule(:definitions => sequence(:definitions), :match => simple(:match)) {
+    Program.new(definitions, match) }
 end
 
