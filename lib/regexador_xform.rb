@@ -39,7 +39,7 @@ class Regexador::Transform < Parslet::Transform
 
   # Later: Remember escaping for chars (char, c1, c2, nchar, ...)
 
-  XChar        = Node.make(:char)       { "#@char" }
+  XChar        = Node.make(:char)       { char == '\\' ? "\\\\" : char.to_s }
   CharRange    = Node.make(:c1, :c2)    { "[#@c1-#@c2]" }
   NegatedRange = Node.make(:nr1, :nr2)  { "[^#@nr1-#@nr2]" }
   NegatedChar  = Node.make(:nchar)      { "[^#@nchar]" }    # More like a range really
