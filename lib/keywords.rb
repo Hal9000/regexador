@@ -2,8 +2,8 @@
 abort "Require out of order" if ! defined? Regexador
 
 class Regexador::Parser
-  ANY    = "any"     # To internationalize the external DSL, only these strings
-  MANY   = "many"    #   need be changed...
+  ANY    = "any"
+  MANY   = "many"
   MAYBE  = "maybe"
   MATCH  = "match"
   END_   = "end"     # END is a Ruby keyword...  

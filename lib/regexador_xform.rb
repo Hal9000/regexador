@@ -3,14 +3,12 @@ require 'parslet'
 abort "Require out of order" if ! defined? Regexador
 
 class Regexador::Transform < Parslet::Transform
-
   class Node
     def self.make(*fields, &block)
       klass = ::Class.new(self) do
         fields.each {|field| attr_accessor field }
         define_method(:fields) { fields.dup }
-        define_method(:to_regex, &block)
-        define_method(:to_s) { to_regex.to_s }
+        define_method(:to_s, &block)
       end
       klass
     end
@@ -19,9 +17,13 @@ class Regexador::Transform < Parslet::Transform
       fields.zip(values) { |f,v| self.send("#{f}=", v) }
     end
 
-    def to_regex
+    def to_s
       raise NotImplementedError, 
-            "Please implement #to_regex for #{short_name}."
+            "Please implement #to_s for #{short_name}."
+    end
+
+    def to_str
+      to_s
     end
 
     def short_name
@@ -51,31 +53,28 @@ class Regexador::Transform < Parslet::Transform
     str
   end
 
-  StringNode = Node.make(:string)                   { string }
+  StringNode = Node.make(:string)                   { string.to_s }
   Repeat1    = Node.make(:num1, :match_item)        { "(#@match_item){#@num1}" }
   Repeat2    = Node.make(:num1, :num2, :match_item) { "(#@match_item){#@num1,#@num2}" }
   Any        = Node.make(:match_item)               { "(#@match_item)*" }
   Many       = Node.make(:match_item)               { "(#@match_item)+" }
   Maybe      = Node.make(:match_item)               { "(#@match_item)?" }
 
-  Sequence   = Node.make(:elements) { elements.map(&:to_regex).join }
-
-## ALternation???
+  Sequence    = Node.make(:elements) { elements.map(&:to_s).join }
+  Alternation = Node.make(:elements) { '(' + elements.map(&:to_s).join('|') + ')' }
 
   Assign     = Node.make(:var, :rvalue)  { "" }  # Doesn't actually translate directly.
 
-  class Assign
+  class Assign < Node    # For clarity: Really already is-a Node
     class << self
       attr_accessor :bindings
     end
 
     def store
       self.class.bindings ||= {}
-      self.class.bindings[@var] = @rvalue.to_regex
+      self.class.bindings[@var] = @rvalue.to_s
     end
   end
-
-# exit
 
   # Actual transformation rules
 
@@ -104,10 +103,11 @@ class Regexador::Transform < Parslet::Transform
 
   rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assign.new(@var, @rvalue).store }
 
-  rule(:alternatives => simple(:pattern)) { "(#@pattern)" }           # HEF
-  rule(:alternatives => sequence(:alternatives)) { "(" + @alternatives.map(&:to_s).join("|") + ")" }  # HEF
+  rule(:alternation => simple(:pattern))        { pattern }
+  rule(:alternation => sequence(:alternatives)) { Alternation.new(alternatives) }
 
-  rule(sequence(:elements)) { Sequence.new(elements) }
+  rule(:sequence => simple(:element))    { element }
+  rule(:sequence => sequence(:elements)) { Sequence.new(elements) }
   
 end
 

@@ -1,0 +1,17 @@
+---
+- !ruby/object:Capture
+  description: US phone number
+  program: |
+       match
+         @area_code = D3
+         `-
+         @prefix = D3
+         `-
+         @last4 = D4
+       end
+  regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
+  examples:
+  - "512-555-2001":
+      :area_code: "512"
+      :prefix: "555"
+      :last4:  "2001"

@@ -1,0 +1,67 @@
+---
+- !ruby/object:Program
+  description: Simple use of two vars
+  program: |
+       var1 = "abc"
+       var2 = "def"
+       match var1 var2 end
+  regex: !ruby/regexp /abcdef/
+  good:
+  - abcdefghi
+  - xyzabcdef
+  bad:
+  - ''
+  - abcxyzdef
+- !ruby/object:Program
+  description: Multiline match with two vars
+  program: "   var1 = \"abc\"\n   var2 = \"def\"\n        \n   # Test a blank line
+    and comment as well.\n \n   match   # multiline match with comment\n     var1\n
+    \    var2\n   end\n"
+  regex: !ruby/regexp /abcdef/
+  good:
+  - abcdefghi
+  - xyzabcdef
+  bad:
+  - ''
+  - abcxyzdef
+- !ruby/object:Program
+  description: IPv4 address
+  program: |
+       dot = "."
+       num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+       match WB num dot num dot num dot num WB end
+  regex: !ruby/regexp "/\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\b/"
+  good:
+  - "127.0.0.1"
+  - "255.254.93.22"
+  bad:
+  - ''
+  - "7.8.9"
+  - "3.4.5.6.7"
+  - "1.2.3.256"
+- !ruby/object:Program
+  description: Identifying credit cards
+  program: "   # Warning: This one likely has errors!\n  \n   visa     = `4 12*D maybe
+    3*D\n   mc       = `5 D5 14*D\n   amex     = `3 '47' 13*D\n   diners   = `3 (`0
+    D5 | '68' D) 11*D\n   discover = `6 (\"011\" | `5 2*D) 12*D\n   jcb      = (\"2131\"|\"1800\"|\"35\"
+    3*D) 11*D\n  \n   match visa | mc | amex | diners | discover | jcb end\n"
+  regex: !ruby/regexp /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/
+  good: []
+  bad: []
+- !ruby/object:Program
+  description: Matching US phone num (with captures)
+  program: |
+       match
+         @area_code = D3
+         `-
+         @prefix = D3
+         `-
+         @last4 = D4
+       end
+  regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
+  good:
+  - abcdefghi
+  - xyzabcdef
+  bad:
+  - ''
+  - abcxyzdef

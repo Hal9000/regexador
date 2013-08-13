@@ -5,9 +5,9 @@ abort "Require out of order" if ! defined? Regexador
 class Regexador::Parser < Parslet::Parser
 end
 
-require './chars'    # These three files 
-require './predefs'  #   reopen the class
-require './keywords' #     Regexador::Parser
+require_relative './chars'    # These three files 
+require_relative './predefs'  #   reopen the class
+require_relative './keywords' #     Regexador::Parser
 
 class Regexador::Parser
   rule(:space)         { match[" \t"].repeat(1) }
@@ -63,9 +63,9 @@ class Regexador::Parser
   rule(:match_item)    { space? >> (simple_match | qualifier | repetition | parenthesized) >> space? }
                        #            `~"'           kwd         num          (
 
-  rule(:concat)        { (match_item >> (space? >> match_item).repeat(0))}
+  rule(:concat)        { (match_item >> (space? >> match_item).repeat(0)).as(:sequence) }
  
-  rule(:pattern)       { (concat >> space? >> (cBAR >> space? >> concat).repeat(0)).as(:alternatives) }  # HEF
+  rule(:pattern)       { (concat >> space? >> (cBAR >> space? >> concat).repeat(0)).as(:alternation) }
 
   rule(:rvalue)        { pattern | number }   # a string is-a pattern
 
