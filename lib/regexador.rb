@@ -24,9 +24,6 @@ end
 if $debug
 puts "\n\nParser gives:"
 pp @tree
-
-puts "\nAssignment.bindings:"
-pp Regexador::Transform::Assignment.bindings
 end
 
     @regex_tree = xform.apply(@tree)

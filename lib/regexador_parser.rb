@@ -79,7 +79,7 @@ class Regexador::Parser
 
   rule(:single_line)      { endofline | capture >> endofline }
 
-  rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1) >> space? >> kEND >> endofline.maybe }
+  rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1).as(:lines) >> space? >> kEND >> endofline.maybe }
 
   rule(:match_clause)  { oneline_clause | multiline_clause }
 
