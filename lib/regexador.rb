@@ -25,14 +25,14 @@ if $debug
 puts "\n\nParser gives:"
 pp @tree
 
-puts "\nAssign.bindings:"
-pp Regexador::Transform::Assign.bindings
+puts "\nAssignment.bindings:"
+pp Regexador::Transform::Assignment.bindings
 end
 
     @regex_tree = xform.apply(@tree)
 if $debug
 puts "\n\nTransform gives:"
-p @regex_tree
+pp @regex_tree
 end
 
     @regex = Regexp.compile(@regex_tree.to_s)

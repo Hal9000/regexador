@@ -14,7 +14,7 @@ class Regexador::Transform < Parslet::Transform
     end
 
     def initialize *values
-      fields.zip(values) { |f,v| self.send("#{f}=", v) }
+      fields.zip(values) {|f,v| self.send("#{f}=", v) }
     end
 
     def to_s
@@ -63,23 +63,30 @@ class Regexador::Transform < Parslet::Transform
   Sequence    = Node.make(:elements) { elements.map(&:to_s).join }
   Alternation = Node.make(:elements) { '(' + elements.map(&:to_s).join('|') + ')' }
 
-  Assign     = Node.make(:var, :rvalue)  { "" }  # Doesn't actually translate directly.
-  Usage      = Node.make(:var) { 
-    "var(#{var})" }
-    #lookup(var) }
+  Assignment = Node.make(:var, :rvalue)  { "" }  # Doesn't actually translate directly.
+  Usage      = Node.make(:var) do
+    puts "Usage - Looking at #{var}"
+    puts "Bindings = #{Assignment.bindings}"
+    val = Assignment.bindings[var.to_s].to_s
+    puts "Got #{val.inspect}"
+    val
+  end
 
-  Program    = Node.make(:definitions, :match) { 
-    # definitions.each { |d| d.store }
-    match.to_s }
+  Program    = Node.make(:definitions, :match) do 
+    puts "In Program: #{definitions}, #{match}"
+#   definitions.each {|d| d.store }
+    match.to_s 
+  end
 
-  class Assign < Node    # For clarity: Really already is-a Node
+  class Assignment < Node    # For clarity: Really already is-a Node
     class << self
       attr_accessor :bindings
     end
 
     def store
-      self.class.bindings ||= {}
-      self.class.bindings[@var] = @rvalue.to_s
+      puts "Storing #@var = #{@rvalue.inspect}"
+      hash = self.class.bindings ||= {}
+      hash[@var.to_s] = @rvalue.to_s
     end
   end
 
@@ -111,7 +118,7 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'many',  :match_item => simple(:match_item)) { Many.new(match_item) }
   rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
 
-  rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assign.new(@var, @rvalue) }
+  rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assignment.new(@var, @rvalue).store }
 
   rule(:alternation => simple(:pattern))        { pattern }
   rule(:alternation => sequence(:alternatives)) { Alternation.new(alternatives) }
@@ -119,9 +126,9 @@ class Regexador::Transform < Parslet::Transform
   rule(:sequence => simple(:element))    { element }
   rule(:sequence => sequence(:elements)) { Sequence.new(elements) }
   
-  rule(:var => simple(:name)) { Usage.new(name) }
+  rule(:var => simple(:name)) { Usage.new(name).to_s }
 
-  rule(:definitions => sequence(:definitions), :match => simple(:match)) {
-    Program.new(definitions, match) }
+  rule(:definitions => sequence(:definitions), :match => simple(:match)) { puts "here 1"; Program.new(definitions, match) }
+  rule(:definitions => sequence(:definitions), :match => sequence(:match)) { puts "here 2"; Program.new(definitions, match) }
 end
 

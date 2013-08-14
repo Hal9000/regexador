@@ -177,11 +177,11 @@ describe Regexador do
     end 
   end
 
-#   @captures.each do |x|
-#     desc, prog, wanted, examples = 
-#       x.description, x.program, x.regex, x.examples
-#     describe "A program with captures (#{desc})" do
-#       it("can be parsed") { @parser.parse(prog).succeeds }
+    @captures.each do |x|
+      desc, prog, wanted, examples = 
+        x.description, x.program, x.regex, x.examples
+      describe "A program with captures (#{desc})" do
+        it("can be parsed") { @parser.parse(prog).succeeds }
 #       rx = nil
 #       it "can be converted to a regex" do
 #         rx = Regexador.new(prog).to_regex
@@ -196,8 +196,8 @@ describe Regexador do
 #           obj.send(capture).should == value
 #         end
 #       end 
-#     end 
-#   end
+      end 
+    end
   
 end
 
