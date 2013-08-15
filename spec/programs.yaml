@@ -28,9 +28,9 @@
   description: IPv4 address
   program: |
        dot = "."
-       num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+       num = "25" D5 | `2 D4 D | maybe D1 0,2*D
        match WB num dot num dot num dot num WB end
-  regex: !ruby/regexp "/\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\\b/"
+  regex: !ruby/regexp /\b(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2}).(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2}).(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2}).(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2})\b/
   good:
   - "127.0.0.1"
   - "255.254.93.22"
@@ -41,11 +41,18 @@
   - "1.2.3.256"
 - !ruby/object:Program
   description: Identifying credit cards
-  program: "   # Warning: This one likely has errors!\n  \n   visa     = `4 12*D maybe
-    3*D\n   mc       = `5 D5 14*D\n   amex     = `3 '47' 13*D\n   diners   = `3 (`0
-    D5 | '68' D) 11*D\n   discover = `6 (\"011\" | `5 2*D) 12*D\n   jcb      = (\"2131\"|\"1800\"|\"35\"
-    3*D) 11*D\n  \n   match visa | mc | amex | diners | discover | jcb end\n"
-  regex: !ruby/regexp /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/
+  program: |
+       # Warning: This one likely has errors!
+        
+       visa     = `4 12*D maybe 3*D
+       mc       = `5 D5 14*D
+       discover = `6 ("011" | `5 2*D) 12*D
+       amex     = `3 '47' 13*D
+       diners   = `3 (`0 D5 | '68' D) 11*D
+       jcb      = ("2131"|"1800"|"35" 3*D) 11*D
+       
+       match visa | mc | discover | amex | diners | jcb end
+  regex: !ruby/regexp /(4([0-9]){12}(([0-9]){3})?|5[1-5]([0-9]){14}|6(011|5[0-9][0-9])[0-9]{12}|3[47]([0-9]){13}|3(0[0-5]|[68][0-9])([0-9]){11}|(2131|1800|35(\d){3})(\d){11})/
   good: []
   bad: []
 - !ruby/object:Program

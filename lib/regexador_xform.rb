@@ -78,8 +78,7 @@ class Regexador::Transform < Parslet::Transform
     # call things out of order just by debug-printing them! This is why I 
     # didn't want to use #to_s initially - I now remember ;)
     # puts "In Program: #{definitions}, #{match}" # DONT DO THIS
-    definitions.each { |d| 
-      d.store }
+    definitions.each {|d| d.store }
     match.to_s 
   end
 

@@ -61,7 +61,7 @@ class Regexador::Parser
   rule(:parenthesized) { cLPAREN >> space? >> pattern >> space? >> cRPAREN }
 
   rule(:match_item)    { space? >> (simple_match | qualifier | repetition | parenthesized) >> space? }
-                       #            `~"'           kwd         num          (
+                       #            `~"'           kwd         num          (                 var
 
   rule(:concat)        { (match_item >> (space? >> match_item).repeat(0)).as(:sequence) }
  

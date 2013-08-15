@@ -3,11 +3,11 @@
   description: US phone number
   program: |
        match
-         @area_code = D3
+         @area_code = 3 * D
          `-
-         @prefix = D3
+         @prefix = 3 * D
          `-
-         @last4 = D4
+         @last4 = 4 * D
        end
   regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
   examples:
