@@ -78,6 +78,7 @@ class Regexador::Transform < Parslet::Transform
     # call things out of order just by debug-printing them! This is why I 
     # didn't want to use #to_s initially - I now remember ;)
     # puts "In Program: #{definitions}, #{match}" # DONT DO THIS
+    # puts "In Program: #{definitions.inspect}, #{match.inspect}"
     definitions.each {|d| d.store }
     match.to_s 
   end
@@ -100,6 +101,8 @@ class Regexador::Transform < Parslet::Transform
       # (The difference is left as an exercise to the reader)
     end
   end
+
+  Captured = Node.make(:cname, :pattern) { "(?<#@cname>#@pattern)" }
 
   # Actual transformation rules
 
@@ -144,5 +147,8 @@ class Regexador::Transform < Parslet::Transform
 
   rule(:definitions => sequence(:definitions), :match => simple(:match)) { Program.new(definitions, match) }
   rule(:definitions => sequence(:definitions), :match => sequence(:match)) { Program.new(definitions, match) }
+
+  rule(:rhs => simple(:pattern)) { pattern }
+  rule(:lhs => {:cvar => simple(:cname)}, :rhs => simple(:pattern)) { Captured.new(cname, pattern) }
 end
 

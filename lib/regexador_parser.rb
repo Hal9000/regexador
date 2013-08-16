@@ -75,11 +75,11 @@ class Regexador::Parser
 
   rule(:definitions)   { (endofline | assignment >> endofline).repeat(0) }
 
-  rule(:capture)       { (capture_var >> space? >> cEQUAL >> space?).maybe >> pattern } # >> endofline }
+  rule(:capture)       { (capture_var.as(:lhs) >> space? >> cEQUAL >> space?).maybe >> pattern.as(:rhs) }
 
   rule(:oneline_clause)   { space? >> kMATCH >> capture >> kEND >> endofline.maybe }
 
-  rule(:single_line)      { endofline | capture >> endofline }
+  rule(:single_line)      { endofline | space? >> capture >> endofline }
 
   rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1).as(:lines) >> space? >> kEND >> endofline.maybe }
 

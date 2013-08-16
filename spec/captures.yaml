@@ -9,7 +9,8 @@
          `-
          @last4 = 4 * D
        end
-  regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
+# regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
+  regex: !ruby/regexp /(?<area_code>([0-9]){3})-(?<prefix>([0-9]){3})-(?<last4>([0-9]){4})/
   examples:
   - "512-555-2001":
       :area_code: "512"

@@ -82,6 +82,21 @@ describe Regexador do
       @parser.definitions.parse_with_debug(defs2).succeeds
     end
   end
+
+  describe "A capture variable" do
+    it "can be parsed" do
+      str1 = "@myvar"
+      @parser.capture_var.parse(str1).succeeds
+    end
+  end
+
+  describe "A captured pattern" do
+    it "can be parsed" do
+      str1 = "@myvar = maybe 'abc'"
+      @parser.capture.parse_with_debug(str1).succeeds
+    end
+  end
+  
   
   describe "A one-line match clause" do
     it "can be parsed" do
