@@ -49,21 +49,23 @@ class Regexador::Parser
 
   rule(:negated_char)  { cTILDE  >> char.as(:nchar) }   #    ~`x means /[^x]/
 
-  rule(:simple_match)  { predef | range | negated_char | posix_class | string | char_class | char | variable }
-                       # X        `a-`c   ~`a            %             "abc"    'abc'        `a 
+  rule(:simple_pattern) { predef | range | negated_char | posix_class | string | 
+                        # X        `a-`c   ~`a            %name         "abc"    
+                          char_class | char | variable }
+                        # 'abc'        `a     xyz
 
-  rule(:qualifier)     { (kANY | kMANY | kMAYBE).as(:qualifier) >> match_item.as(:match_item) }
+  rule(:qualifier)     { (kANY | kMANY | kMAYBE).as(:qualifier) >> fancy_pattern.as(:match_item) }
 
   rule(:repeat1)       { number.as(:num1) }
   rule(:repeat2)       { repeat1 >> cCOMMA >> number.as(:num2) }
-  rule(:repetition)    { (repeat2 | repeat1) >> space? >> cTIMES >> space? >> match_item.as(:match_item) }
+  rule(:repetition)    { (repeat2 | repeat1) >> space? >> cTIMES >> space? >> fancy_pattern.as(:match_item) }
 
   rule(:parenthesized) { cLPAREN >> space? >> pattern >> space? >> cRPAREN }
 
-  rule(:match_item)    { space? >> (simple_match | qualifier | repetition | parenthesized) >> space? }
-                       #            `~"'           kwd         num          (                 var
+  rule(:fancy_pattern)    { space? >> (simple_pattern | qualifier | repetition | parenthesized) >> space? }
+                       #            `~"'             keyword     num          (
 
-  rule(:concat)        { (match_item >> (space? >> match_item).repeat(0)).as(:sequence) }
+  rule(:concat)        { (fancy_pattern >> (space? >> fancy_pattern).repeat(0)).as(:sequence) }
  
   rule(:pattern)       { (concat >> space? >> (cBAR >> space? >> concat).repeat(0)).as(:alternation) }
 
