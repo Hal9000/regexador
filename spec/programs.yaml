@@ -85,8 +85,8 @@
        min  = D5 D9
        sec  = D5 D9
        ampm = (maybe SPACE) ("am" | "pm")
-       time24 = hr24 sep min maybe (sep sec) maybe ampm
-       time12 = hr12 sep min maybe (sep sec)
+       time12 = hr12 sep min maybe (sep sec) maybe ampm
+       time24 = hr24 sep min maybe (sep sec)
        match BOS (time24 | time12) EOS end
   regex: !ruby/regexp /^((((0)?[1-9]|1[0-2])(:|\.)[0-5]\d((:|\.)[0-5]\d)?( )?(am|pm))|(((0)?\d|1\d|2[0-3])(:|\.)[0-5]\d((:|\.)[0-5]\d)?))$/
   good:
