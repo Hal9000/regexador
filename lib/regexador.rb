@@ -39,7 +39,21 @@ end
     @regex
   end
 
-  def match(str)
-    @regex.match(str)  # More to come...
+  def match(str, hash={})
+    result = @regex.match(str)
+    # More to come... parameters (in hash) not handled yet
+    return nil if result.nil?
+
+    # Logic below may change...
+
+    names = result.names
+    obj = Object.new
+    klass = obj.singleton_class
+    names.each {|name| klass.class_eval { define_method(name) { result[name] } } }
+    obj
+  end
+
+  def match?(str)
+    !!match(str)  # Return Boolean
   end
 end

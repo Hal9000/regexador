@@ -30,10 +30,11 @@
        dot = "."
        num = "25" D5 | `2 D4 D | maybe D1 0,2*D
        match WB num dot num dot num dot num WB end
-  regex: !ruby/regexp /\b(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2}).(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2}).(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2}).(25[0-5]|2[0-4][0-9]|([01])?([0-9]){0,2})\b/
+  regex: !ruby/regexp /\b(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\b/
   good:
-  - "127.0.0.1"
+  - "no place like 127.0.0.1"
   - "255.254.93.22"
+  - "you said 255.254.93.22, right?"
   bad:
   - ''
   - "7.8.9"
@@ -52,7 +53,7 @@
        jcb      = ("2131"|"1800"|"35" 3*D) 11*D
        
        match visa | mc | discover | amex | diners | jcb end
-  regex: !ruby/regexp /(4([0-9]){12}(([0-9]){3})?|5[0-5]([0-9]){14}|6(011|5([0-9]){2})([0-9]){12}|3[47]([0-9]){13}|3(0[0-5]|[68][0-9])([0-9]){11}|(2131|1800|35([0-9]){3})([0-9]){11})/
+  regex: !ruby/regexp /(4(\d){12}((\d){3})?|5[0-5](\d){14}|6(011|5(\d){2})(\d){12}|3[47](\d){13}|3(0[0-5]|[68]\d)(\d){11}|(2131|1800|35(\d){3})(\d){11})/
 
 
   good: []
@@ -68,10 +69,42 @@
          @last4 = 4*D
        end
 # regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
-  regex: !ruby/regexp /(?<area_code>([0-9]){3})-(?<prefix>([0-9]){3})-(?<last4>([0-9]){4})/
+  regex: !ruby/regexp /(?<area_code>(\d){3})-(?<prefix>(\d){3})-(?<last4>(\d){4})/
   good:
-  - abcdefghi
-  - xyzabcdef
+  - '601-555-2345'
+  - 'call me at 888-425-9000'
+  bad:
+  - '888-HAL-9000'
+  - '800.237.1234'
+- !ruby/object:Program
+  description: Matching a clock time, 12/24 hrs
+  program: |
+       hr12 = (maybe `0) `1-`9 | `1 D2
+       hr24 = (maybe `0) D | `1 D | `2 D3
+       sep  = `: | `.
+       min  = D5 D9
+       sec  = D5 D9
+       ampm = (maybe SPACE) ("am" | "pm")
+       time24 = hr24 sep min maybe (sep sec) maybe ampm
+       time12 = hr12 sep min maybe (sep sec)
+       match BOS (time24 | time12) EOS end
+  regex: !ruby/regexp /^((((0)?[1-9]|1[0-2])(:|\.)[0-5]\d((:|\.)[0-5]\d)?( )?(am|pm))|(((0)?\d|1\d|2[0-3])(:|\.)[0-5]\d((:|\.)[0-5]\d)?))$/
+  good:
+  - '12:34'
+  - '1:23'
+  - '5:14pm'
+  - '19:43'
+  - '1:23:45'
+  - '1:23:45 pm'
+  - '7:43 pm'
+  - '8:32:45'
+  - '8.34'
+  - '8.34 pm'
+  - '8.34.45'
   bad:
   - ''
-  - abcxyzdef
+  - abc
+  - '24:30'
+  - '25:30'
+  - '19:43 pm'
+  - '5:14  pm'

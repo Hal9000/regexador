@@ -4,7 +4,7 @@ abort "Require out of order" if ! defined? Regexador
 class Regexador::Parser
 
   Predef2Regex = {
-    pD:  "[0-9]", 
+    pD:  "\\d", 
     pD0: "0", 
     pD1: "[01]", 
     pD2: "[0-2]", 
@@ -14,7 +14,7 @@ class Regexador::Parser
     pD6: "[0-6]", 
     pD7: "[0-7]", 
     pD8: "[0-8]", 
-    pD9: "[0-9]", 
+    pD9: "\\d", 
     pX:  ".", 
 
     pCR:     "\r", 

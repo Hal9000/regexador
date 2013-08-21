@@ -39,7 +39,14 @@ class Regexador::Transform < Parslet::Transform
 
   # Later: Remember escaping for chars (char, c1, c2, nchar, ...)
 
-  XChar        = Node.make(:char)       { char == '\\' ? "\\\\" : char.to_s }
+  XChar        = Node.make(:char) do 
+    case char
+      when '\\' then "\\\\"
+      when ".()[]/".include?(char)  then "\\#{char}"   # What's missing??
+    else char.to_s 
+    end
+  end
+
   CharRange    = Node.make(:c1, :c2)    { "[#@c1-#@c2]" }
   NegatedRange = Node.make(:nr1, :nr2)  { "[^#@nr1-#@nr2]" }
   NegatedChar  = Node.make(:nchar)      { "[^#@nchar]" }    # More like a range really
@@ -64,21 +71,15 @@ class Regexador::Transform < Parslet::Transform
   Alternation = Node.make(:elements) { '(' + elements.map(&:to_s).join('|') + ')' }
 
   Assignment = Node.make(:var, :rvalue)  { "" }  # Doesn't actually translate directly.
-  Usage      = Node.make(:var) do
-    puts "Usage - Looking at #{var}"
-    puts "Bindings = #{Assignment.bindings}"
-    val = Assignment.bindings[var.to_s].to_s
-    puts "Got #{val.inspect}"
-    val
-  end
+  Usage      = Node.make(:var)           { Assignment.bindings[var.to_s].to_s }
 
   Program    = Node.make(:definitions, :match) do 
     # NOTE Since we're using to_s for conversion to regular expression, 
     # debugging cannot be done using string interpolation, otherwise we 
-    # call things out of order just by debug-printing them! This is why I 
-    # didn't want to use #to_s initially - I now remember ;)
-    # puts "In Program: #{definitions}, #{match}" # DONT DO THIS
-    # puts "In Program: #{definitions.inspect}, #{match.inspect}"
+    # call things out of order just by debug-printing them! 
+    # 
+    # puts "In Program: #{match}"          # Don't do this
+    # puts "In Program: #{match.inspect}"  # But this is OK
     definitions.each {|d| d.store }
     match.to_s 
   end
@@ -89,7 +90,7 @@ class Regexador::Transform < Parslet::Transform
     end
 
     def store
-      puts "Storing #@var = #{@rvalue.inspect}"
+      # puts "Storing #@var = #{@rvalue.inspect}"
       hash = self.class.bindings ||= {}
 
       # Early binding: 

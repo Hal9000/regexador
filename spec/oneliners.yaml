@@ -32,7 +32,7 @@
   - rst
   bad:
   - def
-  - m123
+  - mno
   - ''
 - !ruby/object:Program
   description: Negated char
@@ -42,8 +42,8 @@
   - xyz
   - '123'
   bad:
-  - mad
-  - dog
+  - d
+  - dd
 - !ruby/object:Program
   description: POSIX class
   program: '%alnum'
@@ -68,15 +68,15 @@
   - xyz
 - !ruby/object:Program
   description: Negated char class
-  program: ~'lmno'
-  regex: !ruby/regexp /[^lmno]/
+  program: ~'ilmnop'
+  regex: !ruby/regexp /[^ilmnop]/
   good:
   - abacus
   - peccata
+  - hydrogen
   bad:
   - oil
-  - pepino
-  - hydrogen
+  - pill
 - !ruby/object:Program
   description: Predef Beginning of string
   program: BOS
@@ -204,6 +204,46 @@
   - ''
   - abde
   - ab c d ef
+- !ruby/object:Program
+  description: Precedence of concatenation over alternation
+  program: '"a" "b" | "c"'
+  regex: !ruby/regexp /(ab|c)/
+  good:
+  - ab
+  - c
+  bad:
+  - b
+  - a
+  - d
+- !ruby/object:Program
+  description: Precedence of parens over concatenation
+  program: '"a" ("b" | "c")'
+  regex: !ruby/regexp /a(b|c)/
+  good:
+  - ab
+  - ac
+  bad:
+  - a
+  - b
+  - c
+- !ruby/object:Program
+  description: Parens, concatenation, alternation
+  program: 'BOS ((maybe `0) `1-`9 | `1 D2) EOS'
+  regex: !ruby/regexp /^((0)?[1-9]|1[0-2])$/
+  good:
+  - '01'
+  - '09'
+  - '12'
+  bad:
+  - '0'
+  - '00'
+  - '13'
+# - !ruby/object:Program
+#   description: My description
+#   program: 'string'
+#   regex: 
+#   good: []
+#   bad: []
 - !ruby/object:Program
   description: Single backtick char
   program: '``'
