@@ -125,20 +125,21 @@ I'm thinking of ignoring these features for now:
 
 **Notes, precedence, etc.**
 
-1. any, many, maybe, ...
-   These refer to the very next pattern:
+1. any, many, maybe, ...  These refer to the very next pattern (but parentheses are legal):
+
        maybe "abc" many "xyz"              /(abc)?(xyz)+/
        maybe many "def"                    /(def)+?/
-   but parentheses are legal:
        maybe ("abc" many "xyz")            /(abc(xyz)+)?/
 
 2. String concatenation is implied:
+
        str = "abc" NL "def"                   /abc\ndef/    
 
 3. Strings don't interpolate and the backslash is not special (unsure?):
+
        str = "lm\nop"                         /lm\\nop/
 
-4.Tokens such as any, many, match, (etc.) are keywords, and as such cannot be local variable names
+4. Tokens such as any, many, match, (etc.) are keywords, and as such cannot be local variable names
 
 5. However, parameters (starting with colon) and named matches
    (starting with @) can be named @any, :many, and so on.
@@ -146,25 +147,30 @@ I'm thinking of ignoring these features for now:
 6. Capitalized predefined matches such as WB (word boundary) are really keywords also
 
 7. Alternation binds very loosely:
+
      many "abc" | "xyz"                   /(abc)+|xyx/
      (many "abc") | "xyz"                 /(abc)+|xyz/   # Same as above
      many ("abc" | "xyz")                 /(abc|xyz)+/   # Different!
 
 8. A variable may refer to a string, a number, or a pattern:
+
      var1 = 3
      var2 = "abc"  # Really a string is a pattern too
      var3 = maybe many D
 
 9. There is no arithmetic, but variables may be used where numbers may:
+
      m = 3
      n = 5
      m,n * "xyz"                           /(xyz){3,5}/
 
 10. Parameters may be used the same way:
+
       # Assuming params :m, :n are 2 and 4
       :m,:n * "xyz"                          /(xyz){2,4}/
 
 11. But data type matters, of course:
+
       m = 3
       n = "foo"
       m,n * "def"                          # Syntax error!
@@ -186,14 +192,14 @@ I'm thinking of ignoring these features for now:
       end
 
 15. A "case" may be used for more complex alternatives (needed??):
+
       case
         when "abc" ...
         when "def" ...
         when "xyz" ...
       end
 
-16. Multiple "programs" can be concatenated, assuming the initial ones
-are all definitions and there is only one match clause at the end.
+16. Multiple "programs" can be concatenated, assuming the initial ones are all definitions and there is only one match clause at the end.
 
       # Ruby code
       defs = "..."
