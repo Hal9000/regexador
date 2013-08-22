@@ -24,22 +24,22 @@ constructing SQL queries and passing them into the appropriate
 methods. Regexador will work much the same way.
 
 
-### Traditional Syntax: Things I Personally Dislike 
+**Traditional Syntax: Things I Personally Dislike**
 
 - There are no keywords -- only punctuation.
  These symbols all have special meanings: ^$.\[]()+\*?  (and others)
-- ^ has two different meanings
+- ^ has at least three different meanings
 - [ and ] each have two or three different meanings
 - Parentheses aren't just for grouping, but for specifying captures
 - Character literals are "naked"
 - Excessive punctuation makes use of backslash common
 - Repetition is strictly postfix form
-- Typically (except for Ruby's /m): They're not multi-line, they don't allow comments, and whitespace is highly significant.
+- Typically (except for Ruby's /x): They're not multi-line, they don't allow comments, and whitespace is highly significant.
 - There's no way to avoid duplication (e.g.) by assigning subexpressions to variables.
 - And other things I'm forgetting
 
 
-## Regexador at a Glance
+### Regexador at a Glance
 
 I'm attracted to old-fashioned line-oriented syntax; but I don't want
 to lock myself into that completely.
@@ -64,7 +64,7 @@ Of course, syntax errors in Regexador will be found and made available
 to the caller.
 
 
-## Beginning at the Beginning
+**Beginning at the Beginning**
 
 I've tried to "think ahead" so as not to paint myself into a corner
 too much.
@@ -86,7 +86,7 @@ I'm thinking of ignoring these features for now:
   - pos/neg lookahead/behind
 
 
-## Syntax notes:
+**Syntax notes:**
 
     "abc"           A char string                /abc/
     `a              A single character           /a/
@@ -123,20 +123,20 @@ I'm thinking of ignoring these features for now:
     NL              Newline "\n"                 /\n/
 
 
-## Notes, precedence, etc.
+**Notes, precedence, etc.**
 
 1. any, many, maybe, ...
    These refer to the very next pattern:
-      maybe "abc" many "xyz"              /(abc)?(xyz)+/
-      maybe many "def"                    /(def)+?/
+       maybe "abc" many "xyz"              /(abc)?(xyz)+/
+       maybe many "def"                    /(def)+?/
    but parentheses are legal:
-      maybe ("abc" many "xyz")            /(abc(xyz)+)?/
+       maybe ("abc" many "xyz")            /(abc(xyz)+)?/
 
 2. String concatenation is implied:
-      str = "abc" NL "def"                   /abc\ndef/    
+       str = "abc" NL "def"                   /abc\ndef/    
 
 3. Strings don't interpolate and the backslash is not special (unsure?):
-      str = "lm\nop"                         /lm\\nop/
+       str = "lm\nop"                         /lm\\nop/
 
 4.Tokens such as any, many, match, (etc.) are keywords, 
   and as such cannot be local variable names
@@ -174,135 +174,131 @@ I'm thinking of ignoring these features for now:
 build the regular expression. It starts with "match" and ends
 with "end":
     
-    match "abc" | "def" | many `x end
+      match "abc" | "def" | many `x end
     
 13. Named matches are only used inside the match clause; anywhere a 
 pattern may be used, "@var = pattern" may also be used. 
 
-    match @first = (many %alpha) SPACES @last = (many %alpha) end
+      match @first = (many %alpha) SPACES @last = (many %alpha) end
 
 14. I think we can avoid parentheses:
 
-    match @first = many %alpha SPACES @last = many %alpha end
+      match @first = many %alpha SPACES @last = many %alpha end
 
 15. Multiple lines are fine (and more readable):
 
-    match
-      @first = many %alpha 
-      SPACES
-      @last = many %alpha
-    end
+      match
+        @first = many %alpha 
+        SPACES
+        @last = many %alpha
+      end
 
 16. A "case" may be used for more complex alternatives (needed??):
-    case
-      when "abc" ...
-      when "def" ...
-      when "xyz" ...
-    end
+      case
+        when "abc" ...
+        when "def" ...
+        when "xyz" ...
+      end
 
 17. Multiple "programs" can be concatenated, assuming the initial ones
 are all definitions and there is only one match clause at the end.
 
-    # Ruby code
-    defs = "..."
-    prog = "..."
-    matcher = Regexador.new(defs + prog)
+      # Ruby code
+      defs = "..."
+      prog = "..."
+      matcher = Regexador.new(defs + prog)
 
 18. Pass in parameters this way:
 
-    # Ruby code
-    prog = "..."
-    matcher = Regexador.new(prog, this: 3, that: "foo")
+      # Ruby code
+      prog = "..."
+      matcher = Regexador.new(prog, this: 3, that: "foo")
 
 19. Possibly invoke "on its own" (compile to regex internally) or
 explicitly compile?
 
-    result = matcher.match(str)
-    if result.ok?
-      alpha, beta = result[:alpha, :beta]    # Captured matches
-    end
+      result = matcher.match(str)
+      if result.ok?
+        alpha, beta = result[:alpha, :beta]    # Captured matches
+      end
 
-    # Or more like:
-    rx = matcher.regexp   # Return a Ruby regex, use however
+      # Alternatively:
+      rx = matcher.regexp   # Return a Ruby regex, use however
 
 
 
-EXAMPLES
-========
+### Examples
 
 1. Match a signed float    /[-+]?[0-9]+\.[0-9]+([Ee][0-9]+)?/
 
-   sign = '+-'
-   digits = many D
-   match 
-     @sign = maybe sign
-     @left = digits
-     `. 
-     @right = digits
-     maybe ('Ee' @exp=(maybe sign digits))
-   end
+     sign = '+-'
+     digits = many D
+     match 
+       @sign = maybe sign
+       @left = digits
+       `. 
+       @right = digits
+       maybe ('Ee' @exp=(maybe sign digits))
+     end
 
-2. Match balanced HTML tags and capture cdata     <TAG\b[^>]\*>(.\*?)</TAG>    
+2. Match balanced HTML tags and capture cdata     /\<TAG\b[^\>]\*\>(.\*?)\<\/TAG\>/    
 
-    # Note that :tag is a parameter, so for example, 
-    # TABLE or BODY might be passed in
-    match 
-      `< :tag WB 
-      @cdata = (upto `>) 
-      "</" :tag `> 
-    end
+     # Note that :tag is a parameter, so for example, 
+     # TABLE or BODY might be passed in
+     match 
+       `< :tag WB 
+       @cdata = (upto `>) 
+       "</" :tag `> 
+     end
 
 
 3. Match IP address (honoring 255 limit)
    Regex: /\b(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\b/ 
 
 
-   dot = "."
-   num = "25" D5 | `2 D4 D | maybe D1 1,2*D
-   match WB num dot num dot num dot num WB end
+     dot = "."
+     num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+     match WB num dot num dot num dot num WB end
 
 4. Determine whether a credit card number is valid
    Regex: /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/
 
-    # Warning: This one likely has errors!
+     # Warning: This one likely has errors!
+     # Assuming no spaces
+ 
+     # Visa:             ^4[0-9]{12}(?:[0-9]{3})?$ 
+     #   All Visa card numbers start with a 4. New cards have 16 digits. Old cards have 13.
+     # MasterCard:       ^5[1-5][0-9]{14}$ 
+     #   All MasterCard numbers start with the numbers 51 through 55. All have 16 digits.
+     # American Express: ^3[47][0-9]{13}$ 
+     #   American Express card numbers start with 34 or 37 and have 15 digits.
+     # Diners Club:      ^3(?:0[0-5]|[68][0-9])[0-9]{11}$ 
+     #   Diners Club card numbers begin with 300 through 305, 36 or 38. All have 14 digits. 
+     #   There are Diners Club cards that begin with 5 and have 16 digits. These are a 
+     #   joint venture between Diners Club and MasterCard, and should be processed like 
+     #   a MasterCard.
+     # Discover:         ^6(?:011|5[0-9]{2})[0-9]{12}$ 
+     #   Discover card numbers begin with 6011 or 65. All have 16 digits.
+     # JCB:              ^(?:2131|1800|35\d{3})\d{11}$ 
+     #   JCB cards beginning with 2131 or 1800 have 15 digits. JCB cards beginning with 35 have 16 digits. 
 
-    # Assuming no spaces
+     visa     = `4 12\*D maybe 3\*D
+     mc       = `5 D5 14\*D
+     amex     = `3 '47' 13\*D
+     diners   = `3 (`0 D5 | '68' D) 11\*D
+     discover = `6 ("011" | `5 2\*D) 12\*D
+     jcb      = ("2131"|"1800"|"35" 3\*D) 11\*D 
+ 
+     match visa | mc | amex | diners | discover | jcb end
 
-    # Visa:             ^4[0-9]{12}(?:[0-9]{3})?$ 
-    #   All Visa card numbers start with a 4. New cards have 16 digits. Old cards have 13.
-    # MasterCard:       ^5[1-5][0-9]{14}$ 
-    #   All MasterCard numbers start with the numbers 51 through 55. All have 16 digits.
-    # American Express: ^3[47][0-9]{13}$ 
-    #   American Express card numbers start with 34 or 37 and have 15 digits.
-    # Diners Club:      ^3(?:0[0-5]|[68][0-9])[0-9]{11}$ 
-    #   Diners Club card numbers begin with 300 through 305, 36 or 38. All have 14 digits. 
-    #   There are Diners Club cards that begin with 5 and have 16 digits. These are a 
-    #   joint venture between Diners Club and MasterCard, and should be processed like 
-    #   a MasterCard.
-    # Discover:         ^6(?:011|5[0-9]{2})[0-9]{12}$ 
-    #   Discover card numbers begin with 6011 or 65. All have 16 digits.
-    # JCB:              ^(?:2131|1800|35\d{3})\d{11}$ 
-    #   JCB cards beginning with 2131 or 1800 have 15 digits. JCB cards beginning with 35 have 16 digits. 
+**Open Questions**
 
-    visa     = `4 12\*D maybe 3\*D
-    mc       = `5 D5 14\*D
-    amex     = `3 '47' 13\*D
-    diners   = `3 (`0 D5 | '68' D) 11\*D
-    discover = `6 ("011" | `5 2\*D) 12\*D
-    jcb      = ("2131"|"1800"|"35" 3\*D) 11\*D 
-
-    match visa | mc | amex | diners | discover | jcb end
-
-Open Questions
-==============
-
-2. What about pos/neg lookahead/lookbehind, possessive matches? Laziness??
-3. Do upto and thru really make sense?
-4. Do next and last really make sense?
-6. What about backreferences?
-7. How to handle /i (ignore-case)?
-8. How to handle /m? /o?
-9. What special symbols/anchors do we need to predefine?
-11. Possibly allow postfix repetition as well as prefix? (e.g.:  pattern \* 1,3)
-12. Other issues...
-
+1. What about pos/neg lookahead/lookbehind, possessive matches? Laziness??
+2. Do upto and thru really make sense?
+3. Do next and last really make sense?
+4. What about backreferences?
+5. How to handle /i (ignore-case)?
+6. How to handle /m? /o?
+7. What special symbols/anchors do we need to predefine?
+8. Possibly allow postfix repetition as well as prefix? (e.g.:  pattern \* 1,3)
+9. Other issues...
