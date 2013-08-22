@@ -50,6 +50,7 @@ end
     obj = Object.new
     klass = obj.singleton_class
     names.each {|name| klass.class_eval { define_method(name) { result[name] } } }
+    klass.class_eval { define_method(:[]) {|*args| args.map {|cvar| result[name] } } }
     obj
   end
 
