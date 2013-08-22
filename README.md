@@ -1,10 +1,10 @@
-regexador
-=========
+# regexador
+
 An external DSL for Ruby that tries to make regular expressions readable and maintainable.
 
+**PLEASE NOTE**: This README is not as up-to-date as [the wiki](http://github.com/Hal9000/regexador/wiki).
 
-The Basic Concept
-=================
+## The Basic Concept
 
 Many people are intimidated or confused by regular expressions. 
 A large part of this is the confusing syntax.
@@ -24,8 +24,7 @@ constructing SQL queries and passing them into the appropriate
 methods. Regexador will work much the same way.
 
 
-Traditional Syntax: Things I Personally Dislike 
-===============================================
+## Traditional Syntax: Things I Personally Dislike 
 
 - There are no keywords -- only punctuation.
  These symbols all have special meanings: ^$.\[]()+\*?  (and others)
@@ -40,8 +39,7 @@ Traditional Syntax: Things I Personally Dislike
 - And other things I'm forgetting
 
 
-Regexador at a Glance
-=====================
+## Regexador at a Glance
 
 I'm attracted to old-fashioned line-oriented syntax; but I don't want
 to lock myself into that completely.
@@ -66,8 +64,7 @@ Of course, syntax errors in Regexador will be found and made available
 to the caller.
 
 
-Beginning at the Beginning
-==========================
+## Beginning at the Beginning
 
 I've tried to "think ahead" so as not to paint myself into a corner
 too much.
@@ -89,47 +86,44 @@ I'm thinking of ignoring these features for now:
   - pos/neg lookahead/behind
 
 
-Syntax notes:
-=============
+## Syntax notes:
 
-"abc"         A char string                /abc/
-`a            A single character           /a/
-&2345         Unicode char U+2345
-~`a           Negated char class           /[^a]/
-'abc'         One of class a, b, c         /[abc]/
-`a-`z         Char range                   /[a-z]/
-`a~`z         Negated char range           /[^a-z]/
-p1 | p2       Alternative                  
-upto `a       All non-a chars until a      /([^a]\*?a)/
-thru `a       All chars including next a   /(.\*?a)/
-maybe PAT     Optional pattern             PAT?
-any PAT       Zero or more of pattern      PAT\*
-many PAT      One or more of pattern       PAT+
-0,1 * PAT     Same as maybe                PAT?
-1,3 * PAT     One to three of PAT          PAT{1,3}
-5 * PAT       Five of PAT                  PAT{5}
-last PAT      Greedy                       (.\*)PAT
-next PAT      Non-greedy (default)         (.\*)?PAT
-@var          A named capture              \g<var>{0}
-:var          A parameter passed in
-%alpha        POSIX or Ruby char class     [[:alpha:]]
-var = val     Assign value to local var
-match         Start assembling the regex
-\# ...         Comment
-\#{...}        Inline comment
-case/when/end Complex alternatives
-D             Digit                        /[0-9]/
-D1, D2, ...   0 through whatever           /[0-1]/  /[0-1]/ ...
-X             Any character                /./
-WB            Word boundary                /\b/
-CR            Carriage return "\r"         /\r/
-LF            Linefeed "\n"                /\n/
-NL            Newline "\n"                 /\n/
+    "abc"           A char string                /abc/
+    `a              A single character           /a/
+    &2345           Unicode char U+2345
+    ~`a             Negated char class           /[^a]/
+    'abc'           One of class a, b, c         /[abc]/
+    `a-`z           Char range                   /[a-z]/
+    `a~`z           Negated char range           /[^a-z]/
+    p1 | p2         Alternative                  
+    upto `a         All non-a chars until a      /([^a]\*?a)/
+    thru `a         All chars including next a   /(.\*?a)/
+    maybe PAT       Optional pattern             PAT?
+    any PAT         Zero or more of pattern      PAT\*
+    many PAT        One or more of pattern       PAT+
+    0,1 * PAT       Same as maybe                PAT?
+    1,3 * PAT       One to three of PAT          PAT{1,3}
+    5 * PAT         Five of PAT                  PAT{5}
+    last PAT        Greedy                       (.\*)PAT
+    next PAT        Non-greedy (default)         (.\*)?PAT
+    @var            A named capture              \g<var>{0}
+    :var            A parameter passed in
+    %alpha          POSIX or Ruby char class     [[:alpha:]]
+    var = val       Assign value to local var
+    match           Start assembling the regex
+    \# ...          Comment
+    \#{...}         Inline comment
+    case/when/end   Complex alternatives
+    D               Digit                        /[0-9]/
+    D1, D2, ...     0 through whatever           /[0-1]/  /[0-1]/ ...
+    X               Any character                /./
+    WB              Word boundary                /\b/
+    CR              Carriage return "\r"         /\r/
+    LF              Linefeed "\n"                /\n/
+    NL              Newline "\n"                 /\n/
 
 
-Notes, precedence, etc.
-=======================
-
+## Notes, precedence, etc.
 
 1. any, many, maybe, ...
    These refer to the very next pattern:
@@ -139,13 +133,13 @@ Notes, precedence, etc.
       maybe ("abc" many "xyz")            /(abc(xyz)+)?/
 
 2. String concatenation is implied:
-   str = "abc" NL "def"                   /abc\ndef/    
+      str = "abc" NL "def"                   /abc\ndef/    
 
 3. Strings don't interpolate and the backslash is not special (unsure?):
-   str = "lm\nop"                         /lm\\nop/
+      str = "lm\nop"                         /lm\\nop/
 
 4.Tokens such as any, many, match, (etc.) are keywords, 
-    and as such cannot be local variable names
+  and as such cannot be local variable names
 
 5. However, parameters (starting with colon) and named matches
    (starting with @) can be named @any, :many, and so on.
