@@ -138,8 +138,7 @@ I'm thinking of ignoring these features for now:
 3. Strings don't interpolate and the backslash is not special (unsure?):
        str = "lm\nop"                         /lm\\nop/
 
-4.Tokens such as any, many, match, (etc.) are keywords, 
-  and as such cannot be local variable names
+4.Tokens such as any, many, match, (etc.) are keywords, and as such cannot be local variable names
 
 5. However, parameters (starting with colon) and named matches
    (starting with @) can be named @any, :many, and so on.
@@ -170,22 +169,15 @@ I'm thinking of ignoring these features for now:
       n = "foo"
       m,n * "def"                          # Syntax error!
 
-12. The "match clause" uses all previous definitions to finally
-build the regular expression. It starts with "match" and ends
-with "end":
+12. The "match clause" uses all previous definitions to finally build the regular expression. It starts with "match" and ends with "end":
     
       match "abc" | "def" | many `x end
     
-13. Named matches are only used inside the match clause; anywhere a 
-pattern may be used, "@var = pattern" may also be used. 
+13. Named matches are only used inside the match clause; anywhere a pattern may be used, "@var = pattern" may also be used. 
 
       match @first = (many %alpha) SPACES @last = (many %alpha) end
 
-14. I think we can avoid parentheses:
-
-      match @first = many %alpha SPACES @last = many %alpha end
-
-15. Multiple lines are fine (and more readable):
+14. Multiple lines are fine (and more readable):
 
       match
         @first = many %alpha 
@@ -193,14 +185,14 @@ pattern may be used, "@var = pattern" may also be used.
         @last = many %alpha
       end
 
-16. A "case" may be used for more complex alternatives (needed??):
+15. A "case" may be used for more complex alternatives (needed??):
       case
         when "abc" ...
         when "def" ...
         when "xyz" ...
       end
 
-17. Multiple "programs" can be concatenated, assuming the initial ones
+16. Multiple "programs" can be concatenated, assuming the initial ones
 are all definitions and there is only one match clause at the end.
 
       # Ruby code
@@ -208,14 +200,13 @@ are all definitions and there is only one match clause at the end.
       prog = "..."
       matcher = Regexador.new(defs + prog)
 
-18. Pass in parameters this way:
+17. Pass in parameters this way:
 
       # Ruby code
       prog = "..."
       matcher = Regexador.new(prog, this: 3, that: "foo")
 
-19. Possibly invoke "on its own" (compile to regex internally) or
-explicitly compile?
+18. Possibly invoke "on its own" (compile to regex internally) or explicitly compile?
 
       result = matcher.match(str)
       if result.ok?
@@ -224,8 +215,6 @@ explicitly compile?
 
       # Alternatively:
       rx = matcher.regexp   # Return a Ruby regex, use however
-
-
 
 ### Examples
 
