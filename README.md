@@ -123,108 +123,107 @@ I'm thinking of ignoring these features for now:
     NL              Newline "\n"                 /\n/
 
 
-**Notes, precedence, etc.**
+### Notes, precedence, etc.
 
-1. any, many, maybe, ...  These refer to the very next pattern (but parentheses are legal):
+any, many, maybe, ...  These refer to the very next pattern (but parentheses are legal):
 
        maybe "abc" many "xyz"              /(abc)?(xyz)+/
        maybe many "def"                    /(def)+?/
        maybe ("abc" many "xyz")            /(abc(xyz)+)?/
 
-2. String concatenation is implied:
+String concatenation is implied:
 
        str = "abc" NL "def"                   /abc\ndef/    
 
-3. Strings don't interpolate and the backslash is not special (unsure?):
+Strings don't interpolate and the backslash is not special (unsure?):
 
        str = "lm\nop"                         /lm\\nop/
 
-4. Tokens such as any, many, match, (etc.) are keywords, and as such cannot be local variable names
+Tokens such as any, many, match, (etc.) are keywords, and as such cannot be local variable names
 
-5. However, parameters (starting with colon) and named matches
-   (starting with @) can be named @any, :many, and so on.
+However, parameters (starting with colon) and named matches (starting with @) can be named @any, :many, and so on.
 
-6. Capitalized predefined matches such as WB (word boundary) are really keywords also
+Capitalized predefined matches such as WB (word boundary) are really keywords also
 
-7. Alternation binds very loosely:
+Alternation binds very loosely:
 
      many "abc" | "xyz"                   /(abc)+|xyx/
      (many "abc") | "xyz"                 /(abc)+|xyz/   # Same as above
      many ("abc" | "xyz")                 /(abc|xyz)+/   # Different!
 
-8. A variable may refer to a string, a number, or a pattern:
+A variable may refer to a string, a number, or a pattern:
 
      var1 = 3
      var2 = "abc"  # Really a string is a pattern too
      var3 = maybe many D
 
-9. There is no arithmetic, but variables may be used where numbers may:
+There is no arithmetic, but variables may be used where numbers may:
 
      m = 3
      n = 5
      m,n * "xyz"                           /(xyz){3,5}/
 
-10. Parameters may be used the same way:
+Parameters may be used the same way:
 
-      # Assuming params :m, :n are 2 and 4
-      :m,:n * "xyz"                          /(xyz){2,4}/
+     # Assuming params :m, :n are 2 and 4
+     :m,:n * "xyz"                          /(xyz){2,4}/
 
-11. But data type matters, of course:
+But data type matters, of course:
 
-      m = 3
-      n = "foo"
-      m,n * "def"                          # Syntax error!
+     m = 3
+     n = "foo"
+     m,n * "def"                          # Syntax error!
 
-12. The "match clause" uses all previous definitions to finally build the regular expression. It starts with "match" and ends with "end":
+The "match clause" uses all previous definitions to finally build the regular expression. It starts with "match" and ends with "end":
     
-      match "abc" | "def" | many `x end
-    
-13. Named matches are only used inside the match clause; anywhere a pattern may be used, "@var = pattern" may also be used. 
+     match "abc" | "def" | many `x end
+   
+Named matches are only used inside the match clause; anywhere a pattern may be used, "@var = pattern" may also be used. 
 
-      match @first = (many %alpha) SPACES @last = (many %alpha) end
+     match @first = (many %alpha) SPACES @last = (many %alpha) end
 
-14. Multiple lines are fine (and more readable):
+Multiple lines are fine (and more readable):
 
-      match
-        @first = many %alpha 
-        SPACES
-        @last = many %alpha
-      end
+     match
+       @first = many %alpha 
+       SPACES
+       @last = many %alpha
+     end
 
-15. A "case" may be used for more complex alternatives (needed??):
+ A "case" may be used for more complex alternatives (needed??):
 
-      case
-        when "abc" ...
-        when "def" ...
-        when "xyz" ...
-      end
+     case
+       when "abc" ...
+       when "def" ...
+       when "xyz" ...
+     end
 
-16. Multiple "programs" can be concatenated, assuming the initial ones are all definitions and there is only one match clause at the end.
+Multiple "programs" can be concatenated, assuming the initial ones are all definitions and there is only one match clause at the end.
 
-      # Ruby code
-      defs = "..."
-      prog = "..."
-      matcher = Regexador.new(defs + prog)
+     # Ruby code
+     defs = "..."
+     prog = "..."
+     matcher = Regexador.new(defs + prog)
 
-17. Pass in parameters this way:
+Pass in parameters this way:
 
-      # Ruby code
-      prog = "..."
-      matcher = Regexador.new(prog, this: 3, that: "foo")
+     # Ruby code
+     prog = "..."
+     matcher = Regexador.new(prog, this: 3, that: "foo")
 
-18. Possibly invoke "on its own" (compile to regex internally) or explicitly compile?
+Possibly invoke "on its own" (compile to regex internally) or explicitly compile?
 
-      result = matcher.match(str)
-      if result.ok?
-        alpha, beta = result[:alpha, :beta]    # Captured matches
-      end
+     result = matcher.match(str)
+     if result.ok?
+       alpha, beta = result[:alpha, :beta]    # Captured matches
+     end
 
-      # Alternatively:
-      rx = matcher.regexp   # Return a Ruby regex, use however
+     # Alternatively:
+     rx = matcher.regexp   # Return a Ruby regex, use however
 
 ### Examples
 
-1. Match a signed float    /[-+]?[0-9]+\.[0-9]+([Ee][0-9]+)?/
+Match a signed float    /[-+]?[0-9]+\.[0-9]+([Ee][0-9]+)?/
 
      sign = '+-'
      digits = many D
@@ -236,7 +235,7 @@ I'm thinking of ignoring these features for now:
        maybe ('Ee' @exp=(maybe sign digits))
      end
 
-2. Match balanced HTML tags and capture cdata     /\<TAG\b[^\>]\*\>(.\*?)\<\/TAG\>/    
+Match balanced HTML tags and capture cdata     /\<TAG\b[^\>]\*\>(.\*?)\<\/TAG\>/    
 
      # Note that :tag is a parameter, so for example, 
      # TABLE or BODY might be passed in
@@ -247,16 +246,13 @@ I'm thinking of ignoring these features for now:
      end
 
 
-3. Match IP address (honoring 255 limit)
-   Regex: /\b(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\b/ 
-
+Match IP address (honoring 255 limit)   Regex: /\b(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{0,2})\b/ 
 
      dot = "."
      num = "25" D5 | `2 D4 D | maybe D1 1,2*D
      match WB num dot num dot num dot num WB end
 
-4. Determine whether a credit card number is valid
-   Regex: /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/
+Determine whether a credit card number is valid    Regex: /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/
 
      # Warning: This one likely has errors!
      # Assuming no spaces
@@ -286,7 +282,7 @@ I'm thinking of ignoring these features for now:
  
      match visa | mc | amex | diners | discover | jcb end
 
-**Open Questions**
+### Open Questions
 
 1. What about pos/neg lookahead/lookbehind, possessive matches? Laziness??
 2. Do upto and thru really make sense?
