@@ -4,7 +4,7 @@ An external DSL for Ruby that tries to make regular expressions readable and mai
 
 **PLEASE NOTE**: This README is not as up-to-date as [the wiki](http://github.com/Hal9000/regexador/wiki).
 
-## The Basic Concept
+### The Basic Concept
 
 Many people are intimidated or confused by regular expressions. 
 A large part of this is the confusing syntax.
@@ -24,7 +24,7 @@ constructing SQL queries and passing them into the appropriate
 methods. Regexador will work much the same way.
 
 
-## Traditional Syntax: Things I Personally Dislike 
+### Traditional Syntax: Things I Personally Dislike 
 
 - There are no keywords -- only punctuation.
  These symbols all have special meanings: ^$.\[]()+\*?  (and others)
