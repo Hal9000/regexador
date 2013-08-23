@@ -268,63 +268,114 @@
 # - !ruby/object:Program
 #   description: My description
 #   program: 'string'
-#   regex: 
+#   regex:  !ruby/regexp
 #   good: []
 #   bad: []
 - !ruby/object:Program
   description: Single backtick char
   program: '``'
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /`/ 
+  good: 
+  - "`"
+  - "this is a tick: `"
+  - "tock ` tock"
+  bad:
+  - ''
+  - 'abc'
 - !ruby/object:Program
   description: Single backslash char
   program: '`\'
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /\\/
+  good:
+  - "\\"
+  - "trying \\n"
+  - "and \\b also"
+  bad:
+  - "\n"
+  - "\b"
+  - "neither \r nor \t"
 - !ruby/object:Program
   description: Empty string
   program: '""'
-  regex: 
-  good: []
+  regex: !ruby/regexp //   # Matches anything
+  good:
+  - ""
+  - "abc"
   bad: []
 - !ruby/object:Program
   description: Simple char class
-  program: '''abcdef'''
-  regex: 
-  good: []
-  bad: []
+  program: "'abcdef'"
+  regex: !ruby/regexp /[abcdef]/
+  good:
+  - "there's a cat here"
+  - "item c"
+  bad:
+  - ""
+  - "proton"
 - !ruby/object:Program
   description: Simple one-char class
-  program: '''x'''
-  regex: 
-  good: []
-  bad: []
+  program: "'x'"
+  regex: !ruby/regexp /[x]/
+  good:
+  - "x"
+  - "uvwxyz"
+  bad:
+  - ""
+  - "abc"
 - !ruby/object:Program
   description: Alternation of range and class
   program: '`a-`f | ''xyz'''
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /([a-f]|[xyz])/
+  good:
+  - "a"
+  - "x"
+  - "z"
+  - "c"
+  bad:
+  - ""
+  - "jkl"
+  - "gw"
 - !ruby/object:Program
-  description: Alternation of range and maybe-clause
+  description: KNOWNFAIL Alternation of range and maybe-clause
   program: '`1-`6| maybe "#"'
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /[1-6]#?/ 
+  good:
+  - "1#"
+  - "1"
+  - " 2# abc"
+  bad:
+  - ""
+  - "abc"
+  - "#"
+  - "7#"
+  - "1 #"
 - !ruby/object:Program
   description: Four-way alternation
   program: '`a | `b|`c|`d'
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /(a|b|c|d)/
+  good:
+  - "xyza"
+  - "xybz"
+  - "xcyz"
+  - "dxyz"
+  bad:
+  - ""
+  - "every"
+  - "ghijk"
 - !ruby/object:Program
   description: Concatenation of range and class
   program: '`a-`f ''xyz'''
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /[a-f][xyz]/
+  good:
+  - "ax"
+  - "fz"
+  - "cy"
+  bad:
+  - "zf"
+  - "xa"
+  - "gz"
+  - "hp"
+  - "mx"
 - !ruby/object:Program
   description: Concat of range and maybe-clause
   program: '`1-`6 maybe "#"'

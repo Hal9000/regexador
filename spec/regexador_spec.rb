@@ -170,13 +170,22 @@ describe Regexador do
     desc, pat, wanted, good, bad = 
       x.description, x.program, x.regex, x.good, x.bad
     describe "A one-pattern program (#{desc})" do
-      prog = "match #{pat} end"
-      it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
-      rx = Regexador.new(prog).to_regex
-      it("can be converted to a regex") { rx.class.should == Regexp }
-      good.each {|str| it("should match #{str.inspect}") { rx.should =~ str } }
-      bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not =~ str } }
-      it("yields the expected regex") { (rx.should == wanted) if wanted }
+      begin
+        prog = "match #{pat} end"
+        it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
+        rx = Regexador.new(prog).to_regex
+        it("can be converted to a regex") { rx.class.should == Regexp }
+        good.each {|str| it("should match #{str.inspect}") { rx.should =~ str } }
+        bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not =~ str } }
+        it("yields the expected regex") { (rx.should == wanted) if wanted }
+        # Sanity check... does the expected regex really match properly?
+        good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
+        bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
+      rescue => err
+        puts "ERROR: #{err}"
+        puts "Description = '#{desc}'"
+        puts err.backtrace
+      end
     end 
   end
   
@@ -192,6 +201,9 @@ describe Regexador do
       good.each {|str| it("should match #{str.inspect}") { rx.should match(str) } }
       bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not match(str) } }
       it("yields the expected regex") { (rx.should == wanted) if wanted }
+      # Sanity check... does the expected regex really match properly?
+      good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
+      bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
     end 
   end
 

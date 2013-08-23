@@ -77,7 +77,7 @@
   - '888-HAL-9000'
   - '800.237.1234'
 - !ruby/object:Program
-  description: Matching a clock time, 12/24 hrs
+  description: KNOWNFAIL Matching a clock time, 12/24 hrs
   program: |
        hr12 = (maybe `0) `1-`9 | `1 D2
        hr24 = (maybe `0) D | `1 D | `2 D3
