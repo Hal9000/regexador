@@ -227,6 +227,30 @@
   - b
   - c
 - !ruby/object:Program
+  description: Anchors and alternation
+  program: 'BOS "x" | "y" EOS'
+  regex: !ruby/regexp /(^x|y$)/
+  good:
+  - xabc
+  - abcy
+  bad:
+  - abc
+  - abcx
+  - yabc
+- !ruby/object:Program
+  description: Anchors, alternation, parens
+  program: 'BOS ("x" | "y") EOS'
+  regex: !ruby/regexp /^(x|y)$/
+  good:
+  - x
+  - y
+  bad:
+  - abc
+  - abcx
+  - yabc
+  - xabc
+  - abcy
+- !ruby/object:Program
   description: Parens, concatenation, alternation
   program: 'BOS ((maybe `0) `1-`9 | `1 D2) EOS'
   regex: !ruby/regexp /^((0)?[1-9]|1[0-2])$/
