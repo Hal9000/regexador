@@ -121,6 +121,8 @@ I'm thinking of ignoring these features for now:
     CR              Carriage return "\r"         /\r/
     LF              Linefeed "\n"                /\n/
     NL              Newline "\n"                 /\n/
+    A               Start of the String          /\A/
+    Z               End of the String            /\z/
 
 
 ### Notes, precedence, etc.

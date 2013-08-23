@@ -63,7 +63,7 @@ class Regexador::Parser
   rule(:parenthesized) { cLPAREN >> space? >> pattern >> space? >> cRPAREN }
 
   rule(:fancy_pattern)    { space? >> (simple_pattern | qualifier | repetition | parenthesized) >> space? }
-                       #            `~"'             keyword     num          (
+                       #               `~"'             keyword     num          (
 
   rule(:concat)        { (fancy_pattern >> (space? >> fancy_pattern).repeat(0)).as(:sequence) }
  

@@ -45,6 +45,16 @@ describe Regexador do
       @parser.cEQUAL.parse('=').succeeds
     end
   end
+
+  describe "A predefined token" do
+    %w(BOS EOS A Z).each do |token|
+      describe token do
+        it 'matches using capture' do
+          @parser.capture.parse_with_debug(token).succeeds
+        end
+      end
+    end
+  end
   
   describe "An assignment" do
     it "can be parsed" do
@@ -161,7 +171,7 @@ describe Regexador do
       x.description, x.program, x.regex, x.good, x.bad
     describe "A one-pattern program (#{desc})" do
       prog = "match #{pat} end"
-      it("can be parsed") { @parser.parse(prog).succeeds }
+      it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
       rx = Regexador.new(prog).to_regex
       it("can be converted to a regex") { rx.class.should == Regexp }
       good.each {|str| it("should match #{str.inspect}") { rx.should =~ str } }

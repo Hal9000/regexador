@@ -18,7 +18,8 @@ puts "-----------------"
 end
 
     @parser = Parser.new
-    @tree   = @parser.parse_with_debug(str)
+    # @tree   = @parser.parse_with_debug(str)
+    @tree   = @parser.parse(str)
 
     xform = Transform.new
 if $debug

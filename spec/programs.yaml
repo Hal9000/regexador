@@ -28,9 +28,9 @@
   description: IPv4 address
   program: |
        dot = "."
-       num = "25" D5 | `2 D4 D | maybe D1 0,2*D
-       match WB num dot num dot num dot num WB end
-  regex: !ruby/regexp /\b(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){0,2})\b/
+       num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+       match A num dot num dot num dot num Z end
+  regex: !ruby/regexp /\b(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\b/
   good:
   - "no place like 127.0.0.1"
   - "255.254.93.22"
