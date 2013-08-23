@@ -4,7 +4,7 @@ $:.push File.expand_path("../lib", __FILE__)
 Gem::Specification.new do |s|
   s.name        = "regexador"
   s.version     = '0.0.1'  
-  s.authors     = ["Hal Fulton"]
+  s.authors     = ["Hal Fulton", "Kaspar Schiess"]
   s.email       = ["rubyhacker@gmail.com"]
   s.homepage    = "http://github.com/hal9000/regexador"
   s.summary     = "A mini-language to make regular expressions more readable."
