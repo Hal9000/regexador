@@ -237,6 +237,9 @@
   - abc
   - abcx
   - yabc
+  - axb
+  - ayb
+  - axyb
 - !ruby/object:Program
   description: Anchors, alternation, parens
   program: 'BOS ("x" | "y") EOS'
