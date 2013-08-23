@@ -83,14 +83,14 @@
   regex: !ruby/regexp /^/
   good:
   - ''
-  bad: []
+  bad: []  # Matches anything
 - !ruby/object:Program
   description: Predef End of string
   program: EOS
   regex: !ruby/regexp /$/
   good:
   - ''
-  bad: []
+  bad: []  # Matches anything
 - !ruby/object:Program
   description: Predef Word boundary
   program: WB
@@ -137,7 +137,7 @@
   - abc
   - abcabc
   - xyz
-  bad: []
+  bad: []  # Matches anything
 - !ruby/object:Program
   description: many-qualifier
   program: many "def"
@@ -159,7 +159,7 @@
   - ghi
   - abghicd
   - gh
-  bad: []
+  bad: []  # Matches anything
 - !ruby/object:Program
   description: Simple concatenation of two strings
   program: '"abc" "def"'
@@ -297,11 +297,11 @@
 - !ruby/object:Program
   description: Empty string
   program: '""'
-  regex: !ruby/regexp //   # Matches anything
+  regex: !ruby/regexp //
   good:
   - ""
   - "abc"
-  bad: []
+  bad: []  # Matches anything
 - !ruby/object:Program
   description: Simple char class
   program: "'abcdef'"
@@ -377,50 +377,94 @@
   - "hp"
   - "mx"
 - !ruby/object:Program
-  description: Concat of range and maybe-clause
-  program: '`1-`6 maybe "#"'
-  regex: 
-  good: []
-  bad: []
-- !ruby/object:Program
-  description: Concat of four chars
-  program: '`a  `b `c    `d'
-  regex: 
-  good: []
-  bad: []
-- !ruby/object:Program
   description: Concat of strings and maybe-clause
   program: '"this" "that" maybe "other"'
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /thisthat(other)?/
+  good:
+  - "thisthat"
+  - "thisthatother"
+  - "abc thisthat xyz"
+  - "abc thisthatother xyz"
+  bad:
+  - ""
+  - "abc"
+  - "this that"
+  - "this that other"
 - !ruby/object:Program
   description: Simple repetition of class
   program: 3 * 'xyz'
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /([xyz]){3}/
+  good:
+  - "xyz"
+  - "xxx"
+  - "yzy"
+  - "xyzzy123"
+  bad:
+  - ""
+  - "abc"
+  - "xy"
+  - "axy"
+  - "xyb"
+  - "axyb"
 - !ruby/object:Program
   description: Simple repetition of range
   program: 4 * `1-`6
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /([1-6]){4}/
+  good:
+  - "1111"
+  - "1234"
+  - "abc 6543 def"
+  bad:
+  - ""
+  - "abc"
+  - "123"
+  - "123 4"
 - !ruby/object:Program
   description: Complex repetition of char
   program: 3,5 * (`a)
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /(a){3,5}/
+  good:
+  - "aaa"
+  - "aaaa"
+  - "aaaaa"
+  - "xaaay"
+  - "aaaaaaa"
+  bad:
+  - ""
+  - "abc"
+  - "aa"
 - !ruby/object:Program
   description: Complex repetition of parenthesized class
   program: 4,7 * ('xyz')
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /([xyz]){4,7}/
+  good:
+  - "xxxx"
+  - "yyyy"
+  - "xyzy"
+  - "xyzzy"
+  - "zyzzyva"
+  - "xyzxyz"
+  - "xyzxyzx"
+  - "xyzxyzxyzxyz"
+  bad:
+  - ""
+  - "abc"
+  - "x"
+  - "xx"
+  - "xxx"
+  - "xyz xy"
 - !ruby/object:Program
   description: Complex repetition of parenthesized range
   program: 0,3 * (`1-`6)
-  regex: 
-  good: []
-  bad: []
+  regex: !ruby/regexp /([1-6]){0,3}/
+  good:
+  - ""
+  - "1"
+  - "11"
+  - "111"
+  - "56"
+  - "654"
+  - "1111"
+  - "x123y"
+  - "x123456y"
+  bad: []  # Matches anything
