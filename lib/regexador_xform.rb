@@ -40,11 +40,7 @@ class Regexador::Transform < Parslet::Transform
   # Later: Remember escaping for chars (char, c1, c2, nchar, ...)
 
   XChar        = Node.make(:char) do 
-    case char
-      when '\\' then "\\\\"
-      when ".()[]/".include?(char)  then "\\#{char}"   # What's missing??
-    else char.to_s 
-    end
+    Regexp.escape(char)
   end
 
   CharRange    = Node.make(:c1, :c2)    { "[#@c1-#@c2]" }
@@ -60,7 +56,7 @@ class Regexador::Transform < Parslet::Transform
     str
   end
 
-  StringNode = Node.make(:string)                   { string.to_s }
+  StringNode = Node.make(:string)                   { Regexp.escape(string.to_s) }
   Repeat1    = Node.make(:num1, :match_item)        { "(#@match_item){#@num1}" }
   Repeat2    = Node.make(:num1, :num2, :match_item) { "(#@match_item){#@num1,#@num2}" }
   Any        = Node.make(:match_item)               { "(#@match_item)*" }

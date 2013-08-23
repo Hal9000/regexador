@@ -208,6 +208,17 @@ describe Regexador do
       it("yields the expected regex") { (rx.should == wanted) if wanted }
     end 
   end
-  
+
 end
+
+describe Regexador::Transform do
+  describe Regexador::Transform::StringNode do
+    let(:sn) { Regexador::Transform::StringNode.new('.string.') }
+
+    it 'converts to regexp escaped strings' do
+      sn.to_s.should == '\.string\.'
+    end
+  end
+end
+
 

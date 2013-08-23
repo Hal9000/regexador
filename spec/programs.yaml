@@ -69,7 +69,7 @@
          @last4 = 4*D
        end
 # regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
-  regex: !ruby/regexp /(?<area_code>(\d){3})-(?<prefix>(\d){3})-(?<last4>(\d){4})/
+  regex: !ruby/regexp /(?<area_code>(\d){3})\-(?<prefix>(\d){3})\-(?<last4>(\d){4})/
   good:
   - '601-555-2345'
   - 'call me at 888-425-9000'
