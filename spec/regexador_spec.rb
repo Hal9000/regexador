@@ -179,8 +179,8 @@ describe Regexador do
       it("can be parsed") { @parser.parse(prog).succeeds }
       rx = Regexador.new(prog).to_regex
       it("can be converted to a regex") { rx.class.should == Regexp }
-      good.each {|str| it("should match #{str.inspect}") { rx.should =~ str } }
-      bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not =~ str } }
+      good.each {|str| it("should match #{str.inspect}") { rx.should match(str) } }
+      bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not match(str) } }
       it("yields the expected regex") { (rx.should == wanted) if wanted }
     end 
   end
