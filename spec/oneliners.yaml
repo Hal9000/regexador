@@ -468,3 +468,460 @@
   - "x123y"
   - "x123456y"
   bad: []  # Matches anything
+
+#### Examples below are anchored with ^ and $
+
+- !ruby/object:Program
+  description: Single char (anchored)
+  program: 'BOS `x EOS'
+  regex: !ruby/regexp /^x$/
+  good:
+  - "x"
+  bad:
+  - "yz"
+  - ''
+  - "ABC"
+- !ruby/object:Program
+  description: Simple range (anchored)
+  program: 'BOS `a-`f EOS'
+  regex: !ruby/regexp /^[a-f]$/
+  good:
+  - a
+  - b
+  - c
+  - d
+  - e
+  - f
+  bad:
+  - "xyz"
+  - ''
+  - "ABC"
+- !ruby/object:Program
+  description: Negated range (anchored)
+  program: 'BOS `c~`p EOS'
+  regex: !ruby/regexp /^[^c-p]$/
+  good:
+  - "a"
+  - "r"
+  bad:
+  - "def"
+  - "mno"
+  - ''
+- !ruby/object:Program
+  description: Negated char (anchored)
+  program: 'BOS ~`d EOS'
+  regex: !ruby/regexp /^[^d]$/
+  good:
+  - "x"
+  - "1"
+  bad:
+  - "d"
+  - "dd"
+  - "abc" 
+- !ruby/object:Program
+  description: POSIX class (anchored)
+  program: 'BOS %alnum EOS'
+  regex: !ruby/regexp /^[[:alnum:]]$/
+  good:
+  - "c"
+  - "2"
+  bad:
+  - ""
+  - "abc"
+  - "123"
+  - "-"
+  - ":"
+  - ","
+  - "."
+- !ruby/object:Program
+  description: Simple char class (anchored)
+  program: "BOS 'prstu' EOS"
+  regex: !ruby/regexp /^[prstu]$/
+  good:
+  - "u"
+  - "p"
+  - "s"
+  bad:
+  - ""
+  - "abc"
+  - "x"
+- !ruby/object:Program
+  description: Negated char class (anchored)
+  program: "BOS ~'ilmnop' EOS"
+  regex: !ruby/regexp /^[^ilmnop]$/
+  good:
+  - "a"
+  - "e"
+  - "h"
+  bad:
+  - "o"
+  - "i"
+  - "l"
+- !ruby/object:Program
+  description: Simple string (anchored)
+  program: 'BOS "xyz" EOS'
+  regex: !ruby/regexp /^xyz$/
+  good:
+  - "xyz"
+  bad:
+  - ""
+  - "abc"
+  - "abcxyzdef"
+  - "xydefz"
+- !ruby/object:Program
+  description: Single-bounded repetition (anchored)
+  program: 'BOS 5 * "xyz" EOS'
+  regex: !ruby/regexp /^(xyz){5}$/
+  good:
+  - "xyzxyzxyzxyzxyz"
+  bad:
+  - "xyzxyzxyzxyz"
+  - "abcxyzxyzxyzxyz"
+  - "xyzxyzxyzxyzabc"
+- !ruby/object:Program
+  description: Double-bounded repetition (anchored)
+  program: "BOS 3,4 * %alpha EOS"
+  regex: !ruby/regexp /^([[:alpha:]]){3,4}$/
+  good:
+  - "abc"
+  - "abcd"
+  bad:
+  - ""
+  - "ab"
+  - "x"
+  - "abcde"
+- !ruby/object:Program
+  description: any-qualifier (anchored)
+  program: 'BOS any "abc" EOS'
+  regex: !ruby/regexp /^(abc)*$/
+  good:
+  - ""
+  - "abc"
+  - "abcabc"
+  - "abcabcabc"
+  bad:
+  - "ab"
+  - "abcab"
+  - "xyz"
+- !ruby/object:Program
+  description: many-qualifier (anchored)
+  program: 'BOS many "def" EOS'
+  regex: !ruby/regexp /^(def)+$/
+  good:
+  - "def"
+  - "defdef"
+  - "defdefdef"
+  bad:
+  - ""
+  - "d"
+  - "de"
+  - "defd"
+  - "xyz"
+- !ruby/object:Program
+  description: maybe-qualifier (anchored)
+  program: 'BOS maybe "ghi" EOS'
+  regex: !ruby/regexp /^(ghi)?$/
+  good:
+  - ""
+  - "ghi"
+  bad:
+  - "abghicd"
+  - "gh"
+- !ruby/object:Program
+  description: Simple concatenation of two strings (anchored)
+  program: 'BOS "abc" "def" EOS'
+  regex: !ruby/regexp /^abcdef$/
+  good:
+  - "abcdef"
+  bad:
+  - ""
+  - "abcd"
+  - "xyzabcdef"
+  - "abcxyzdef"
+  - "abcdefxyz"
+- !ruby/object:Program
+  description: Concat of string and char class (anchored)
+  program: "BOS \"abc\" 'def' EOS"
+  regex: !ruby/regexp /^abc[def]$/
+  good:
+  - "abcd"
+  - "abce"
+  - "abcf"
+  bad:
+  - ""
+  - "ab"
+  - "abc"
+  - "abcx"
+- !ruby/object:Program
+  description: Simple alternation (anchored)
+  program: 'BOS ("abc" | "def") EOS'
+  regex: !ruby/regexp /^(abc|def)$/
+  good:
+  - "abc"
+  - "def"
+  bad:
+  - ""
+  - "abde"
+  - "ab c d ef"
+  - "xdefy"
+- !ruby/object:Program
+  description: Alternation of concatenations (anchored)
+  program: 'BOS ("ab" "c" | "d" "ef") EOS'
+  regex: !ruby/regexp /^(abc|def)$/
+  good:
+  - "abc"
+  - "def"
+  bad:
+  - ""
+  - "abde"
+  - "ab c d ef"
+  - "xdefy"
+- !ruby/object:Program
+  description: Precedence of concatenation over alternation (anchored)
+  program: 'BOS ("a" "b" | "c") EOS'
+  regex: !ruby/regexp /^(ab|c)$/
+  good:
+  - "ab"
+  - "c"
+  bad:
+  - ""
+  - "b"
+  - "a"
+  - "d"
+  - "abc"
+  - "abcde"
+- !ruby/object:Program
+  description: Precedence of parens over concatenation (anchored)
+  program: 'BOS "a" ("b" | "c") EOS'
+  regex: !ruby/regexp /^a(b|c)$/
+  good:
+  - "ab"
+  - "ac"
+  bad:
+  - "a"
+  - "b"
+  - "c"
+  - "abc"
+  - "abx"
+  - "bac"
+- !ruby/object:Program
+  description: Anchors and alternation (anchored)
+  program: 'BOS "x" | "y" EOS'
+  regex: !ruby/regexp /(^x|y$)/
+  good:
+  - xabc
+  - abcy
+  bad:
+  - abc
+  - abcx
+  - yabc
+  - axb
+  - ayb
+  - axyb
+- !ruby/object:Program
+  description: Parens, concatenation, alternation (anchored)
+  program: 'BOS ((maybe `0) `1-`9 | `1 D2) EOS'
+  regex: !ruby/regexp /^((0)?[1-9]|1[0-2])$/
+  good:
+  - "01"
+  - "09"
+  - "12"
+  bad:
+  - "0"
+  - "00"
+  - "13"
+- !ruby/object:Program
+  description: Single backtick char (anchored)
+  program: 'BOS `` EOS'
+  regex: !ruby/regexp /^`$/ 
+  good: 
+  - "`"
+  bad:
+  - ''
+  - 'abc'
+  - "this is a tick: `"
+  - "tock ` tock"
+- !ruby/object:Program
+  description: Single backslash char (anchored)
+  program: 'BOS `\ EOS'
+  regex: !ruby/regexp /^\\$/
+  good:
+  - "\\"
+  bad:
+  - "\n"
+  - "\b"
+  - "neither \r nor \t"
+  - "trying \\n"
+  - "and \\b also"
+- !ruby/object:Program
+  description: Empty string (anchored)
+  program: 'BOS "" EOS'
+  regex: !ruby/regexp /^$/
+  good:
+  - ""
+  bad:
+  - "abc"
+- !ruby/object:Program
+  description: Simple one-char class (anchored)
+  program: "BOS 'x' EOS"
+  regex: !ruby/regexp /^[x]$/
+  good:
+  - "x"
+  bad:
+  - ""
+  - "abc"
+  - "uvwxyz"
+- !ruby/object:Program
+  description: Alternation of range and class (anchored)
+  program: "BOS (`a-`f | 'xyz') EOS"
+  regex: !ruby/regexp /^([a-f]|[xyz])$/
+  good:
+  - "a"
+  - "x"
+  - "z"
+  - "c"
+  bad:
+  - ""
+  - "ab"
+  - "abc"
+  - "xy"
+  - "jkl"
+  - "gw"
+- !ruby/object:Program
+  description: KNOWNFAIL Alternation of range and maybe-clause (anchored)
+  program: 'BOS (`1-`6| maybe "#") EOS'
+  regex: !ruby/regexp /^([1-6]#?)$/ 
+  good:
+  - "1#"
+  - "1"
+  - "6#"
+  - "6"
+  bad:
+  - ""
+  - "abc"
+  - "#"
+  - "7#"
+  - "1 #"
+  - " 2# abc"
+- !ruby/object:Program
+  description: Four-way alternation (anchored)
+  program: 'BOS (`a | `b|`c|`d) EOS'
+  regex: !ruby/regexp /^(a|b|c|d)$/
+  good:
+  - "a"
+  - "b"
+  - "c"
+  - "d"
+  bad:
+  - ""
+  - "ab"
+  - "every"
+  - "ghijk"
+- !ruby/object:Program
+  description: Concatenation of range and class (anchored)
+  program: "BOS `a-`f 'xyz' EOS"
+  regex: !ruby/regexp /^[a-f][xyz]$/
+  good:
+  - "ax"
+  - "fz"
+  - "cy"
+  bad:
+  - "axe"
+  - "fz123"
+  - "zf"
+  - "xa"
+  - "gz"
+  - "hp"
+  - "mx"
+- !ruby/object:Program
+  description: Concat of strings and maybe-clause (anchored)
+  program: 'BOS "this" "that" maybe "other" EOS'
+  regex: !ruby/regexp /^thisthat(other)?$/
+  good:
+  - "thisthat"
+  - "thisthatother"
+  bad:
+  - ""
+  - "abc"
+  - "this that"
+  - "this that other"
+  - "abc thisthat xyz"
+  - "abc thisthatother xyz"
+- !ruby/object:Program
+  description: Simple repetition of class (anchored)
+  program: "BOS 3 * 'xyz' EOS"
+  regex: !ruby/regexp /^([xyz]){3}$/
+  good:
+  - "xyz"
+  - "xxx"
+  - "yzy"
+  bad:
+  - ""
+  - "abc"
+  - "xy"
+  - "axy"
+  - "xyb"
+  - "axyb"
+  - "xyzzy123"
+- !ruby/object:Program
+  description: Simple repetition of range (anchored)
+  program: "BOS 4 * `1-`6 EOS"
+  regex: !ruby/regexp /^([1-6]){4}$/
+  good:
+  - "1111"
+  - "1234"
+  bad:
+  - ""
+  - "abc"
+  - "123"
+  - "123 4"
+  - "abc 6543 def"
+- !ruby/object:Program
+  description: Complex repetition of char (anchored)
+  program: "BOS 3,5 * (`a) EOS"
+  regex: !ruby/regexp /^(a){3,5}$/
+  good:
+  - "aaa"
+  - "aaaa"
+  - "aaaaa"
+  bad:
+  - ""
+  - "abc"
+  - "aa"
+  - "xaaay"
+  - "aaaaaaa"
+- !ruby/object:Program
+  description: Complex repetition of parenthesized class (anchored)
+  program: "BOS 4,7 * ('xyz') EOS"
+  regex: !ruby/regexp /^([xyz]){4,7}$/
+  good:
+  - "xxxx"
+  - "yyyy"
+  - "xyzy"
+  - "xyzzy"
+  - "xyzxyz"
+  - "xyzxyzx"
+  bad:
+  - ""
+  - "abc"
+  - "x"
+  - "xx"
+  - "xxx"
+  - "xyz xy"
+  - "xyzxyzxyzxyz"
+  - "zyzzyva"
+- !ruby/object:Program
+  description: Complex repetition of parenthesized range (anchored)
+  program: "BOS 0,3 * (`1-`6) EOS"
+  regex: !ruby/regexp /^([1-6]){0,3}$/
+  good:
+  - ""
+  - "1"
+  - "11"
+  - "111"
+  - "56"
+  - "654"
+  bad:
+  - "1111"
+  - "x123y"
+  - "x123456y"
