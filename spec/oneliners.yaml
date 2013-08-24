@@ -336,19 +336,15 @@
   - "jkl"
   - "gw"
 - !ruby/object:Program
-  description: KNOWNFAIL Alternation of range and maybe-clause
+  description: Alternation of range and maybe-clause
   program: '`1-`6| maybe "#"'
-  regex: !ruby/regexp /[1-6]#?/ 
+  regex: !ruby/regexp /([1-6]|(\#)?)/ 
   good:
+  - ""
   - "1#"
   - "1"
   - " 2# abc"
-  bad:
-  - ""
-  - "abc"
-  - "#"
-  - "7#"
-  - "1 #"
+  bad: []  # Matches everything
 - !ruby/object:Program
   description: Four-way alternation
   program: '`a | `b|`c|`d'
@@ -788,21 +784,17 @@
   - "jkl"
   - "gw"
 - !ruby/object:Program
-  description: KNOWNFAIL Alternation of range and maybe-clause (anchored)
+  description: Alternation of range and maybe-clause (anchored)
   program: 'BOS (`1-`6| maybe "#") EOS'
-  regex: !ruby/regexp /^([1-6]#?)$/ 
+  regex: !ruby/regexp /^([1-6]|(\#)?)$/ 
   good:
-  - "1#"
+  - ""
   - "1"
-  - "6#"
+  - "#"
   - "6"
   bad:
-  - ""
-  - "abc"
-  - "#"
-  - "7#"
-  - "1 #"
-  - " 2# abc"
+  - "55"
+  - "###"
 - !ruby/object:Program
   description: Four-way alternation (anchored)
   program: 'BOS (`a | `b|`c|`d) EOS'
