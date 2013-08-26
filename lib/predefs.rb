@@ -27,11 +27,11 @@ class Regexador::Parser
     pBLANK:  "\s", 
     pBLANKS: "\s+", 
 
-    pWB: "\\b", 
-    pBOS: "^", 
-    pEOS: "$", 
-    pA: "\A", 
-    pZ: "\Z"
+    pWB:    "\\b", 
+    pBOS:   "^", 
+    pEOS:   "$", 
+    pSTART: "\A", 
+    pEND:   "\Z"
   }
 
   # We need to reverse sort the keys so that longer keys are used before

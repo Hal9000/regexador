@@ -47,7 +47,7 @@ describe Regexador do
   end
 
   describe "A predefined token" do
-    %w(BOS EOS A Z).each do |token|
+    %w(BOS EOS START END).each do |token|
       describe token do
         it 'matches using capture' do
           @parser.capture.parse_with_debug(token).succeeds

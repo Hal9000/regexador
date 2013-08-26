@@ -1,4 +1,4 @@
-require './lib/regexador'
+require 'regexador'
 
 # Without using parameters...
 
