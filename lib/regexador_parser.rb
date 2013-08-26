@@ -41,6 +41,8 @@ class Regexador::Parser
   rule(:char_class)    { simple_class | negated_class }
 
   rule(:number)        { digits }
+  rule(:numeric)       { number | variable | parameter }
+
   rule(:char)          { cTICK >> printable.as(:char) }
 
   rule(:simple_range)  { char.as(:c1) >> cHYPHEN >> char.as(:c2) }
@@ -51,25 +53,25 @@ class Regexador::Parser
 
   rule(:simple_pattern) { predef | range | negated_char | posix_class | string | 
                         # X        `a-`c   ~`a            %name         "abc"    
-                          char_class | char | variable }
-                        # 'abc'        `a     xyz
+                          char_class | char | parameter | variable }
+                        # 'abc'        `a     :param      xyz
 
   rule(:qualifier)     { (kANY | kMANY | kMAYBE).as(:qualifier) >> fancy_pattern.as(:match_item) }
 
-  rule(:repeat1)       { number.as(:num1) }
-  rule(:repeat2)       { repeat1 >> cCOMMA >> number.as(:num2) }
+  rule(:repeat1)       { numeric.as(:num1) }
+  rule(:repeat2)       { repeat1 >> cCOMMA >> numeric.as(:num2) }
   rule(:repetition)    { (repeat2 | repeat1) >> space? >> cTIMES >> space? >> fancy_pattern.as(:match_item) }
 
   rule(:parenthesized) { cLPAREN >> space? >> pattern >> space? >> cRPAREN }
 
-  rule(:fancy_pattern)    { space? >> (simple_pattern | qualifier | repetition | parenthesized) >> space? }
-                       #               `~"'             keyword     num          (
+  rule(:fancy_pattern)    { space? >> (repetition | simple_pattern | qualifier | parenthesized) >> space? }
+                       #               num          `~"'             keyword     (
 
   rule(:concat)        { (fancy_pattern >> (space? >> fancy_pattern).repeat(0)).as(:sequence) }
  
   rule(:pattern)       { (concat >> space? >> (cBAR >> space? >> concat).repeat(0)).as(:alternation) }
 
-  rule(:rvalue)        { pattern | number }   # a string is-a pattern
+  rule(:rvalue)        { pattern | numeric }   # a string is-a pattern
 
   rule(:assignment)    { space? >> name.as(:var) >> space? >> cEQUAL >> space? >> rvalue.as(:rvalue) }
 
@@ -83,7 +85,7 @@ class Regexador::Parser
 
   rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1).as(:lines) >> space? >> kEND >> endofline.maybe }
 
-  rule(:match_clause)  { oneline_clause | multiline_clause }
+  rule(:match_clause)  { multiline_clause | oneline_clause }
 
   rule(:program)       { definitions.as(:definitions) >> match_clause.as(:match) }
 

@@ -195,7 +195,7 @@ describe Regexador do
     desc, prog, wanted, good, bad = 
       x.description, x.program, x.regex, x.good, x.bad
     describe "A complete program (#{desc})" do
-      it("can be parsed") { @parser.parse(prog).succeeds }
+      it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
       rx = Regexador.new(prog).to_regex
       it("can be converted to a regex") { rx.class.should == Regexp }
       good.each {|str| it("should match #{str.inspect}") { rx.should match(str) } }

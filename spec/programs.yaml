@@ -108,3 +108,39 @@
   - '25:30'
   - '19:43 pm'
   - '5:14  pm'
+# - !ruby/object:Program
+#   description: Simple use of two vars
+#   program: |
+#   regex: !ruby/regexp //
+#   good:
+#   bad:
+- !ruby/object:Program
+  description: Var used in simple repetition
+  program: |
+       n = 3
+       match BOS n * `x EOS end
+  regex: !ruby/regexp /^(x){3}$/
+  good:
+  - "xxx"
+  bad:
+  - ""
+  - "x"
+  - "xx x"
+  - "xxxx"
+- !ruby/object:Program
+  description: Var used in complex repetition
+  program: |
+       m = 4
+       n = 6
+       match BOS m,n * `x EOS end
+  regex: !ruby/regexp /^(x){4,6}$/
+  good:
+  - "xxxx"
+  - "xxxxx"
+  - "xxxxxx"
+  bad:
+  - ""
+  - "x"
+  - "xx x"
+  - "xxx"
+  - "xxxxxxx"

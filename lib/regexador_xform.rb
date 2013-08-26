@@ -89,17 +89,15 @@ class Regexador::Transform < Parslet::Transform
       # puts "Storing #@var = #{@rvalue.inspect}"
       hash = self.class.bindings ||= {}
 
-      # Early binding: 
-      # hash[@var.to_s] = @rvalue.to_s
-
-      # Late binding:
-      hash[@var.to_s] = @rvalue
-
-      # (The difference is left as an exercise to the reader)
+      hash[@var.to_s] = @rvalue          # Late binding
+      # hash[@var.to_s] = @rvalue.to_s   # Early binding
+      # Think about the difference... :)
     end
   end
 
   Captured = Node.make(:cname, :pattern) { "(?<#@cname>#@pattern)" }
+
+  Parameter = Node.make(:param) { "(#{param}){0}" }
 
   # Actual transformation rules
 
@@ -130,6 +128,8 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
 
   rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assignment.new(@var, @rvalue) }
+
+  rule(:param => simple(:param)) { Parameter.new(param) }
 
   rule(:alternation => simple(:pattern))        { pattern }
   rule(:alternation => sequence(:alternatives)) { Alternation.new(alternatives) }

@@ -28,10 +28,13 @@ pp @tree
 end
 
     @regex_tree = xform.apply(@tree)
+    @regex_str  = @regex_tree.to_s
 if $debug
 puts "\n\nTransform gives:"
 pp @regex_tree
 end
+
+# p @regex_tree.to_s
 
     @regex = Regexp.compile(@regex_tree.to_s)
   end
@@ -41,8 +44,11 @@ end
   end
 
   def match(str, hash={})
+    hash.each_pair do |var, val|
+      @regex_str.gsub!(/\(#{var}\)\{0\}/, val)
+    end
+    @regex = Regexp.compile(@regex_str) unless hash.empty?
     result = @regex.match(str)
-    # More to come... parameters (in hash) not handled yet
     return nil if result.nil?
 
     # Logic below may change...
@@ -55,7 +61,7 @@ end
     obj
   end
 
-  def match?(str)
-    !!match(str)  # Return Boolean
+  def match?(str, hash={})
+    !!match(str, hash)  # Return Boolean
   end
 end
