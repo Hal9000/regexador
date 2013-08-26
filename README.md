@@ -90,30 +90,23 @@ I'm thinking of ignoring these features for now:
 
     "abc"           A char string                /abc/
     `a              A single character           /a/
-    &2345           Unicode char U+2345
     ~`a             Negated char class           /[^a]/
     'abc'           One of class a, b, c         /[abc]/
     `a-`z           Char range                   /[a-z]/
     `a~`z           Negated char range           /[^a-z]/
     p1 | p2         Alternative                  
-    upto `a         All non-a chars until a      /([^a]\*?a)/
-    thru `a         All chars including next a   /(.\*?a)/
     maybe PAT       Optional pattern             PAT?
     any PAT         Zero or more of pattern      PAT\*
     many PAT        One or more of pattern       PAT+
     0,1 * PAT       Same as maybe                PAT?
     1,3 * PAT       One to three of PAT          PAT{1,3}
     5 * PAT         Five of PAT                  PAT{5}
-    last PAT        Greedy                       (.\*)PAT
-    next PAT        Non-greedy (default)         (.\*)?PAT
     @var            A named capture              \g<var>{0}
     :var            A parameter passed in
     %alpha          POSIX or Ruby char class     [[:alpha:]]
     var = val       Assign value to local var
     match           Start assembling the regex
-    \# ...          Comment
-    \#{...}         Inline comment
-    case/when/end   Complex alternatives
+    # ...           Comment
     D               Digit                        /[0-9]/
     D1, D2, ...     0 through whatever           /[0-1]/  /[0-1]/ ...
     X               Any character                /./
@@ -121,8 +114,19 @@ I'm thinking of ignoring these features for now:
     CR              Carriage return "\r"         /\r/
     LF              Linefeed "\n"                /\n/
     NL              Newline "\n"                 /\n/
-    A               Start of the String          /\A/
-    Z               End of the String            /\z/
+    START           Start of the string          /\A/
+    END             End of the string            /\Z/
+
+
+    "On hold" for now...
+
+    &2345           Unicode char U+2345
+    upto `a         All non-a chars until a      /([^a]\*?a)/
+    thru `a         All chars including next a   /(.\*?a)/
+    last PAT        Greedy                       (.\*)PAT
+    next PAT        Non-greedy (default)         (.\*)?PAT
+    #{...}          Inline comment
+    case/when/end   Complex alternatives
 
 
 ### Notes, precedence, etc.
