@@ -2,7 +2,8 @@
 
 An external DSL for Ruby that tries to make regular expressions readable and maintainable.
 
-**PLEASE NOTE**: This README is not as up-to-date as [the wiki](http://github.com/Hal9000/regexador/wiki).
+**PLEASE NOTE**: This README may not be as up-to-date 
+as [the wiki](http://github.com/Hal9000/regexador/wiki).
 
 ### The Basic Concept
 
@@ -15,9 +16,9 @@ implemented in/for other languages.
 
 In your Ruby code, you can create a Regexador "script" or "program"
 (probably by means of a here-document) that you can then pass into
-the Regexador class. At minimum, we should be able to convert this
-into a "real" Ruby regular expression; we might add other functions
-as well.
+the Regexador class. At minimum, you can convert this into a "real" 
+Ruby regular expression; there are a few other features and functions, 
+and more may be added.
 
 For an analogy, think of how we sometimes manipulate databases by
 constructing SQL queries and passing them into the appropriate 
