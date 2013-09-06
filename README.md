@@ -14,15 +14,54 @@ Regexador is a mini-language purely for building regular expressions.
 It's purely a Ruby project for now, though in theory it could be
 implemented in/for other languages.
 
+For an analogy, think of how we sometimes manipulate databases by
+constructing SQL queries and passing them into the appropriate 
+methods. Regexador works much the same way.
+
+### A Short Example
+
+Suppose we want to match a string consisting of a single IP address. 
+(Remember that the numbers can only range as high as 255.)
+
+Here is traditional regular expression notation:
+
+    /^(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})$/
+
+And here is Regexador notation:
+
+    dot = "."
+    num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+    match BOS num dot num dot num dot num EOS end
+
 In your Ruby code, you can create a Regexador "script" or "program"
 (probably by means of a here-document) that you can then pass into
 the Regexador class. At minimum, you can convert this into a "real" 
 Ruby regular expression; there are a few other features and functions, 
 and more may be added.
 
-For an analogy, think of how we sometimes manipulate databases by
-constructing SQL queries and passing them into the appropriate 
-methods. Regexador will work much the same way.
+So here is a complete Ruby program:
+
+    require 'regexador'
+    
+    program = <<-EOS
+      dot = "."
+      num = "25" D5 | `2 D4 D | maybe D1 0,2*D
+      match WB num dot num dot num dot num WB end
+    EOS
+    
+    pattern = Regexador.new(program)
+    
+    puts "Give me an IP address"
+    str = gets.chomp
+    
+    rx = pattern.to_regex    # Can retrieve the actual regex
+    
+    if pattern.match?(str)   # ...or use in other direct ways
+      puts "Valid"
+    else
+      puts "Invalid"
+    end
+
 
 
 **Traditional Syntax: Things I Personally Dislike**
