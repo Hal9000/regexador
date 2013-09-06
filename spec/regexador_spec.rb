@@ -46,6 +46,13 @@ describe Regexador do
     end
   end
 
+  describe "A Unicode character" do
+    it "can be matched" do
+      @parser.codepoint.parse_with_debug("&1234").succeeds
+      @parser.codepoint.parse('&beef').succeeds
+    end
+  end
+
   describe "A predefined token" do
     %w(BOS EOS START END).each do |token|
       describe token do
