@@ -23,6 +23,7 @@ class Regexador::Parser
 
   rule(:digit)         { match('[0-9]') }
   rule(:digits)        { digit.repeat(1) }
+  rule(:hexdigit)      { digit | match("[abcdef]") }
   rule(:quoted)        { match('[^"]').repeat(0) }
   rule(:single_quoted) { match("[^']").repeat(0) }
   rule(:printable)     { match('[!-~]') }
@@ -43,7 +44,9 @@ class Regexador::Parser
   rule(:number)        { digits }
   rule(:numeric)       { number | variable | parameter }
 
-  rule(:char)          { cTICK >> printable.as(:char) }
+  rule(:codepoint)     { cAMPERSAND >> (hexdigit >> hexdigit >> hexdigit >> hexdigit).as(:unicode) }
+
+  rule(:char)          { (cTICK >> printable.as(:char)) | codepoint }
 
   rule(:simple_range)  { char.as(:c1) >> cHYPHEN >> char.as(:c2) }
   rule(:negated_range) { char.as(:nr1) >> cTILDE  >> char.as(:nr2) }

@@ -3,6 +3,7 @@ abort "Require out of order" if ! defined? Regexador
 class Regexador::Parser 
   rule(:cSQUOTE)     { str("'") }
   rule(:cQUOTE)      { str('"') }
+  rule(:cAMPERSAND)  { str('&') }
   rule(:cTICK)       { str('`') }
   rule(:cBAR)        { str('|') }
   rule(:cPERCENT)    { str('%') }
