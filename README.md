@@ -110,16 +110,14 @@ I've tried to "think ahead" so as not to paint myself into a corner
 too much.
 
 However, probably not all of this can be implemented in the first
-version. I hope to have a preliminary version working in less than
-a month. 
+version. The current "working version" (0.2.7) has been implemented
+over a period of nine weeks.
 
 Therefore some of the syntax described in the following will not be
 available right away.
 
-I'm thinking of ignoring these features for now:
-  - Unicode chars
+Features still postponed:
   - intra-line comments:  #{...}
-  - parameters
   - case/end
   - unsure about upto, thru
   - unsure about next, last
@@ -130,6 +128,7 @@ I'm thinking of ignoring these features for now:
 
     "abc"           A char string                /abc/
     `a              A single character           /a/
+    &2345           Unicode char U+2345
     ~`a             Negated char class           /[^a]/
     'abc'           One of class a, b, c         /[abc]/
     `a-`z           Char range                   /[a-z]/
@@ -160,7 +159,6 @@ I'm thinking of ignoring these features for now:
 
     "On hold" for now...
 
-    &2345           Unicode char U+2345
     upto `a         All non-a chars until a      /([^a]\*?a)/
     thru `a         All chars including next a   /(.\*?a)/
     last PAT        Greedy                       (.\*)PAT
@@ -184,6 +182,25 @@ String concatenation is implied:
 Strings don't interpolate and the backslash is not special (unsure?):
 
        str = "lm\nop"                         /lm\\nop/
+
+A character literal is essentially the same as a one-character string.
+
+      c1 = `$                                 /\$/
+      s1 = "$"                                /\$/
+
+However, a character can be negated, while a string (at present) cannot.
+
+      n1 = ~`$                                /[^$]/
+
+It is possible to use the "ampersand" notation (with four hex digits) 
+to specify a Unicode codepoint explicitly.
+
+      &20ac                                   /€/
+
+The encoding is assumed to be UTF-8. Characters used as literals are limited
+only by the editor and the current Ruby encoding.
+
+      str = "æßçöñ"                           /æကßçö/
 
 Tokens such as any, many, match, (etc.) are keywords, and as such cannot be local variable names
 

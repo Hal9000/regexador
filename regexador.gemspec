@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "regexador"
-  s.version     = '0.2.6'  
+  s.version     = '0.2.7'  
   s.authors     = ["Hal Fulton", "Kaspar Schiess"]
   s.email       = ["rubyhacker@gmail.com"]
   s.homepage    = "http://github.com/hal9000/regexador"
