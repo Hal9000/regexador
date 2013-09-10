@@ -12,6 +12,31 @@
   - ''
   - ABC
 - !ruby/object:Program
+  description: Unicode codepoint
+  program: '&20ac'
+  regex: !ruby/regexp /€/
+  good:
+  - "€"
+  - "xyz€"
+  - "x€yz"
+  bad:
+  - yz
+  - ''
+  - ABC
+- !ruby/object:Program
+  description: Manual international characters
+  program: '"ö"'
+  regex: !ruby/regexp /ö/
+  good:
+  - "öffnen"
+  - "xyzö"
+  - "xöyz"
+  bad:
+  - "offnen"
+  - yz
+  - ''
+  - ABC
+- !ruby/object:Program
   description: Simple range
   program: '`a-`f'
   regex: !ruby/regexp /[a-f]/

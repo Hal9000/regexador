@@ -101,7 +101,14 @@ class Regexador::Transform < Parslet::Transform
 
   # Actual transformation rules
 
-  rule(:char => simple(:ch))    { XChar.new(ch) }
+  rule(:char => simple(:ch))        { XChar.new(ch) }
+  rule(:unicode => simple(:hex4))   { StringNode.new("" << Integer("0x#{hex4}")) }
+
+  rule(:string => simple(:string))  { StringNode.new(string) }
+  # When the string is empty, parslet returns an empty array for lack of content. 
+  # Map that to the empty string node.
+  rule(:string => sequence(:string))  { StringNode.new('') }
+
   rule(:c1 => simple(:c1), :c2 => simple(:c2)) { CharRange.new(c1, c2) }
 
   rule(:nr1 => simple(:nr1), :nr2 => simple(:nr2)) { NegatedRange.new(nr1, nr2) }
@@ -113,11 +120,6 @@ class Regexador::Transform < Parslet::Transform
   rule(:neg_class => simple(:neg_class))   { NegatedClass.new(neg_class) }
 
   rule(:predef => simple(:content)) { Predefined.new(content) }
-
-  rule(:string => simple(:string))  { StringNode.new(string) }
-  # When the string is empty, parslet returns an empty array for lack of content. 
-  # Map that to the empty string node.
-  rule(:string => sequence(:string))  { StringNode.new('') }
 
   rule(:num1 => simple(:num1), :match_item => simple(:match_item)) { Repeat1.new(num1, match_item) }
   

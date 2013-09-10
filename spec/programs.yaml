@@ -144,3 +144,23 @@
   - "xx x"
   - "xxx"
   - "xxxxxxx"
+- !ruby/object:Program
+  description: Using Unicode codepoint again
+  program: |
+       euro = &20ac
+       price = (euro | "$") SPACE many D maybe ("." 2*D)
+       match BOS price EOS end
+  regex: !ruby/regexp /^(€|\$) (\d)+(\.(\d){2})?$/
+  good:
+  - "€ 237"
+  - "$ 237"
+  - "€ 23.45"
+  - "€ 0.25"
+  bad:
+  - ""
+  - "x"
+  - "€"
+  - "€ "
+  - "€  237"
+  - "$  237"
+  - "€ 23.456"

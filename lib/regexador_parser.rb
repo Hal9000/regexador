@@ -26,7 +26,7 @@ class Regexador::Parser
   rule(:hexdigit)      { digit | match("[abcdef]") }
   rule(:quoted)        { match('[^"]').repeat(0) }
   rule(:single_quoted) { match("[^']").repeat(0) }
-  rule(:printable)     { match('[!-~]') }
+  rule(:graph_char)    { match ("[[:graph:]]") }   # { match('[!-~]') }
   rule(:name)          { keyword.absent? >> lower >> (lower | cUNDERSCORE | digit).repeat(0) }
 
   rule(:variable)      { name.as(:var) }
@@ -46,7 +46,7 @@ class Regexador::Parser
 
   rule(:codepoint)     { cAMPERSAND >> (hexdigit >> hexdigit >> hexdigit >> hexdigit).as(:unicode) }
 
-  rule(:char)          { (cTICK >> printable.as(:char)) | codepoint }
+  rule(:char)          { (cTICK >> graph_char.as(:char)) | codepoint }
 
   rule(:simple_range)  { char.as(:c1) >> cHYPHEN >> char.as(:c2) }
   rule(:negated_range) { char.as(:nr1) >> cTILDE  >> char.as(:nr2) }

@@ -38,7 +38,7 @@ describe Regexador do
   end
   
   describe "A special character" do
-    it "can be matched as a pattern" do
+    it "can be matched correctly" do
       @parser.cSQUOTE.parse_with_debug("'").succeeds
       @parser.cHASH.parse('#').succeeds
       @parser.cNEWLINE.parse("\n").succeeds
@@ -46,7 +46,17 @@ describe Regexador do
     end
   end
 
-  describe "A Unicode character" do
+  describe "An international character" do
+    it "can follow a backtick" do  # 
+      @parser.char.parse_with_debug("`æ").succeeds
+      @parser.char.parse("`ß").succeeds
+      @parser.char.parse("`ç").succeeds
+      @parser.char.parse("`ö").succeeds
+      @parser.char.parse("`ñ").succeeds
+    end
+  end
+
+  describe "A Unicode codepoint expression" do
     it "can be matched" do
       @parser.codepoint.parse_with_debug("&1234").succeeds
       @parser.codepoint.parse('&beef').succeeds
