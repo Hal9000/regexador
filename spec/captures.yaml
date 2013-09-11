@@ -15,3 +15,42 @@
       :area_code: "512"
       :prefix: "555"
       :last4:  "2001"
+- !ruby/object:Capture
+  description: A simple backreference
+  program: |2
+       tag = many %alpha
+       match
+         `<
+         @tag = tag
+         `>
+         @cdata = any X
+         "</" 
+         @tag `>
+      end
+  regex: !ruby/regexp /<(?<tag>[[:alpha:]]+)>(?<cdata>.*)<\/\k<tag>>/
+  examples:
+  - "<body>abcd</body>":
+      :tag: "body"
+      :cdata: "abc"
+  - "<table>table</table>":
+      :tag: "table"
+      :cdata: "table"
+- !ruby/object:Capture
+  description: A simple backreference again
+  program: |2
+       tag = many %alpha
+       match
+         `<
+         @tag = tag
+         `>
+         @cdata = any X
+         "</" @tag `>     # Slightly different code
+      end
+  regex: !ruby/regexp /<(?<tag>[[:alpha:]]+)>(?<cdata>.*)<\/\k<tag>>/
+  examples:
+  - "<body>abcd</body>":
+      :tag: "body"
+      :cdata: "abc"
+  - "<table>table</table>":
+      :tag: "table"
+      :cdata: "table"

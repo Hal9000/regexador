@@ -10,31 +10,29 @@ require 'parslet/convenience'
 class Regexador
   def initialize(str)
     @code = str
-if $debug
-puts
-puts "---- Code: ------"
-puts str
-puts "-----------------"
-end
+    if $debug
+      puts
+      puts "---- Code: ------"
+      puts str
+      puts "-----------------"
+    end
 
     @parser = Parser.new
-    # @tree   = @parser.parse_with_debug(str)
-    @tree   = @parser.parse(str)
+    meth = $debug ? :parse_with_debug : :parse
+    @tree = @parser.send(meth, str)
 
     xform = Transform.new
-if $debug
-puts "\n\nParser gives:"
-pp @tree
-end
+    if $debug
+      puts "\n\nParser gives:"
+      pp @tree
+    end
 
     @regex_tree = xform.apply(@tree)
     @regex_str  = @regex_tree.to_s
-if $debug
-puts "\n\nTransform gives:"
-pp @regex_tree
-end
-
-# p @regex_tree.to_s
+    if $debug
+      puts "\n\nTransform gives:"
+      pp @regex_tree
+    end
 
     @regex = Regexp.compile(@regex_tree.to_s)
   end
@@ -63,5 +61,19 @@ end
 
   def match?(str, hash={})
     !!match(str, hash)  # Return Boolean
+  end
+
+  def =~(other)
+    other = stringify(other)
+    raise ArgumentError unless String === other
+    match(other)
+  end
+
+  private
+ 
+  def stringify(obj)
+    return obj if String === obj
+    return obj.to_str if obj.respond_to?(:to_str)
+    return obj
   end
 end

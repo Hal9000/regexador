@@ -190,10 +190,13 @@ describe Regexador do
       begin
         prog = "match #{pat} end"
         it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
-        rx = Regexador.new(prog).to_regex
+        pattern = Regexador.new(prog)
+        rx = pattern.to_regex
         it("can be converted to a regex") { rx.class.should == Regexp }
         good.each {|str| it("should match #{str.inspect}") { rx.should =~ str } }
         bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not =~ str } }
+        good.each {|str| it("should natively match #{str.inspect}") { (!!(pattern =~ str)).should == true } }
+        bad.each  {|str| it("should not natively match #{str.inspect}") { (!!(pattern =~ str)).should == false } }
         it("yields the expected regex") { (rx.should == wanted) if wanted }
         # Sanity check... does the expected regex really match properly?
         good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
@@ -213,10 +216,13 @@ describe Regexador do
       x.description, x.program, x.regex, x.good, x.bad
     describe "A complete program (#{desc})" do
       it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
-      rx = Regexador.new(prog).to_regex
+      pattern = Regexador.new(prog)
+      rx = pattern.to_regex
       it("can be converted to a regex") { rx.class.should == Regexp }
       good.each {|str| it("should match #{str.inspect}") { rx.should match(str) } }
       bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not match(str) } }
+      good.each {|str| it("should natively match #{str.inspect}") { (!!(pattern =~ str)).should == true } }
+      bad.each  {|str| it("should not natively match #{str.inspect}") { (!!(pattern =~ str)).should == false } }
       it("yields the expected regex") { (rx.should == wanted) if wanted }
       # Sanity check... does the expected regex really match properly?
       good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
@@ -228,23 +234,27 @@ describe Regexador do
     desc, prog, wanted, examples = 
       x.description, x.program, x.regex, x.examples
     describe "A program with captures (#{desc})" do
-      it("can be parsed") { @parser.parse(prog).succeeds }
-
-      pattern = Regexador.new(prog)
-      rx = pattern.to_regex
-      it("can be converted to a regex") { rx.class.should == Regexp }
-
-      examples.each do |example|
-        example.each_pair do |str, results|
-          mobj = rx.match(str)       # ordinary Ruby match object
-          obj  = pattern.match(str)  # special object returned
-          results.each_pair do |cvar, val| 
-            it("grabs captures correctly") { mobj[cvar].should == val }
-            it("exposes captures via method names") { obj.send(cvar).should == val }
+      begin
+        it("can be parsed") { @parser.parse(prog).succeeds }
+  
+        pattern = Regexador.new(prog)
+        rx = pattern.to_regex
+        it("can be converted to a regex") { rx.class.should == Regexp }
+  
+        examples.each do |example|
+          example.each_pair do |str, results|
+            mobj = rx.match(str)       # ordinary Ruby match object
+            obj  = pattern.match(str)  # special object returned
+            results.each_pair do |cvar, val| 
+              it("grabs captures correctly") { mobj[cvar].should == val }
+              it("exposes captures via method names") { obj.send(cvar).should == val }
+            end
           end
-        end
-      end 
-      it("yields the expected regex") { (rx.should == wanted) if wanted }
+        end 
+        it("yields the expected regex") { (rx.should == wanted) if wanted }
+      rescue => err
+        puts "Error: #{err}"
+      end
     end 
   end
 
