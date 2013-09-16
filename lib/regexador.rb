@@ -8,9 +8,9 @@ require_relative './regexador_xform'
 require 'parslet/convenience'
 
 class Regexador
-  def initialize(str)
+  def initialize(str, debug=false)
     @code = str
-    if $debug
+    if debug
       puts
       puts "---- Code: ------"
       puts str
@@ -18,18 +18,18 @@ class Regexador
     end
 
     @parser = Parser.new
-    meth = $debug ? :parse_with_debug : :parse
+    meth = debug ? :parse_with_debug : :parse
     @tree = @parser.send(meth, str)
 
     xform = Transform.new
-    if $debug
+    if debug
       puts "\n\nParser gives:"
       pp @tree
     end
 
     @regex_tree = xform.apply(@tree)
     @regex_str  = @regex_tree.to_s
-    if $debug
+    if debug
       puts "\n\nTransform gives:"
       pp @regex_tree
     end
