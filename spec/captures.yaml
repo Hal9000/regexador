@@ -54,3 +54,18 @@
   - "<table>table</table>":
       :tag: "table"
       :cdata: "table"
+- !ruby/object:Capture
+  description: A simple inline backreference with alternation
+  program: |2
+       match
+         BOS
+         (@var = "x") | (@var = "y") 
+         @var
+         EOS
+       end
+  regex: !ruby/regexp /^((?<var>x)|(?<var>y))\k<var>$/
+  examples:
+  - "xx":
+      :var: "x"
+  - "yy":
+      :var: "y"
