@@ -69,3 +69,17 @@
       :var: "x"
   - "yy":
       :var: "y"
+- !ruby/object:Capture
+  description: A simple inline capture
+  program: "match `a @var = `b `c end"
+  regex: !ruby/regexp /a(?<var>bc)/
+  examples:
+  - "abc":
+      :var: "bc"
+- !ruby/object:Capture
+  description: A simple inline capture with parens
+  program: "match `a (@var = `b) `c end"
+  regex: !ruby/regexp /a(?<var>b)c/
+  examples:
+  - "abc":
+      :var: "b"
