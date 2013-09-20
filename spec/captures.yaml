@@ -27,7 +27,7 @@
          "</" 
          @tag `>
       end
-  regex: !ruby/regexp /<(?<tag>[[:alpha:]]+)>(?<cdata>.*)<\/\k<tag>>/
+  regex: !ruby/regexp /<(?<tag>([[:alpha:]])+)>(?<cdata>(.)*)<\/\k<tag>>/
   examples:
   - "<body>abcd</body>":
       :tag: "body"
@@ -46,7 +46,7 @@
          @cdata = any X
          "</" @tag `>     # Slightly different code
       end
-  regex: !ruby/regexp /<(?<tag>[[:alpha:]]+)>(?<cdata>.*)<\/\k<tag>>/
+  regex: !ruby/regexp /<(?<tag>([[:alpha:]])+)>(?<cdata>(.)*)<\/\k<tag>>/
   examples:
   - "<body>abcd</body>":
       :tag: "body"
