@@ -118,9 +118,13 @@ describe Regexador do
   end
 
   describe "A captured pattern" do
-    it "can be parsed" do
-      str1 = "@myvar = maybe 'abc'"
-      @parser.capture.parse_with_debug(str1).succeeds
+    let(:prog) { "@myvar = maybe 'abc'" }
+
+    it "can be parsed (#capture)" do
+      @parser.capture.parse_with_debug(prog).succeeds
+    end
+    it "can be parsed (#program)" do
+      @parser.parse_with_debug("match #{prog} end").succeeds
     end
   end
   

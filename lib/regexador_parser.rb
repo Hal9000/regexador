@@ -93,7 +93,7 @@ class Regexador::Parser
 
   rule(:capture)       { (capture_var.as(:lhs) >> space? >> cEQUAL >> space?).maybe >> pattern.as(:rhs) }
 
-  rule(:oneline_clause)   { space? >> kMATCH >> capture >> kEND >> endofline.maybe }
+  rule(:oneline_clause)   { space? >> kMATCH >> space? >> capture >> kEND >> endofline.maybe }
 
   rule(:single_line)      { endofline | space? >> capture >> endofline }
 # rule(:single_line)      { endofline | space? >> mc_pattern >> endofline }
