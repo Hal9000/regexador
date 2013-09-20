@@ -54,10 +54,12 @@ class Regexador::Parser
 
   rule(:negated_char)  { cTILDE  >> char.as(:nchar) }   #    ~`x means /[^x]/
 
+  rule(:capture)       { capture_var.as(:lhs) >> space? >> (cEQUAL >> space? >> pattern.as(:rhs)).maybe }
+
   rule(:simple_pattern) { predef | range | negated_char | posix_class | string | 
                         # X        `a-`c   ~`a            %name         "abc"    
-                          char_class | char | parameter | variable }
-                        # 'abc'        `a     :param      xyz
+                          char_class | char | parameter | variable | capture }
+                        # 'abc'        `a     :param      xyz        @xyz = ...
 
   rule(:qualifier)     { (kANY | kMANY | kMAYBE).as(:qualifier) >> fancy_pattern.as(:match_item) }
 
@@ -80,23 +82,9 @@ class Regexador::Parser
 
   rule(:definitions)   { (endofline | assignment >> endofline).repeat(0) }
 
-  ### Patterns inside match clause can include backreferences...
+  rule(:oneline_clause)   { space? >> kMATCH >> space? >> pattern >> kEND >> endofline.maybe }
 
-  rule(:mc_pattern)    { (mc_concat >> space? >> (cBAR >> space? >> mc_concat).repeat(0)).as(:mc_alternation) }
-
-  rule(:mc_concat)     { (mc_fancy_pattern >> (space? >> mc_fancy_pattern).repeat(0)).as(:sequence) }
-
-  rule(:mc_fancy_pattern)  { space? >> capture.maybe >> (repetition | simple_pattern | qualifier | parenthesized | capture_var) >> space? }
-                                                    #    num          `~"'             keyword     (
-
-  ###
-
-  rule(:capture)       { (capture_var.as(:lhs) >> space? >> cEQUAL >> space?).maybe >> pattern.as(:rhs) }
-
-  rule(:oneline_clause)   { space? >> kMATCH >> space? >> capture >> kEND >> endofline.maybe }
-
-  rule(:single_line)      { endofline | space? >> capture >> endofline }
-# rule(:single_line)      { endofline | space? >> mc_pattern >> endofline }
+  rule(:single_line)      { endofline | space? >> pattern >> endofline }
 
   rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1).as(:lines) >> space? >> kEND >> endofline.maybe }
 

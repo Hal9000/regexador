@@ -96,6 +96,7 @@ class Regexador::Transform < Parslet::Transform
   end
 
   Captured = Node.make(:cname, :pattern) { "(?<#@cname>#@pattern)" }
+  Backref = Node.make(:name) { "\\k<#@name>" }
 
   Parameter = Node.make(:param) { "(#{param}){0}" }
 
@@ -147,7 +148,10 @@ class Regexador::Transform < Parslet::Transform
   rule(:definitions => sequence(:definitions), :match => simple(:match)) { Program.new(definitions, match) }
   rule(:definitions => sequence(:definitions), :match => sequence(:match)) { Program.new(definitions, match) }
 
-  rule(:rhs => simple(:pattern)) { pattern }
+  # An expression of the form '@variable'
+  rule(:lhs => {:cvar => simple(:backref)}) { Backref.new(backref) }
+
+  # An expression of the form '@variable = expr'
   rule(:lhs => {:cvar => simple(:cname)}, :rhs => simple(:pattern)) { Captured.new(cname, pattern) }
 end
 

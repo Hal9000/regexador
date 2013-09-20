@@ -66,8 +66,8 @@ describe Regexador do
   describe "A predefined token" do
     %w(BOS EOS START END).each do |token|
       describe token do
-        it 'matches using capture' do
-          @parser.capture.parse_with_debug(token).succeeds
+        it 'matches using pattern' do
+          @parser.pattern.parse_with_debug(token).succeeds
         end
       end
     end
@@ -124,6 +124,16 @@ describe Regexador do
       @parser.capture.parse_with_debug(prog).succeeds
     end
     it "can be parsed (#program)" do
+      @parser.parse_with_debug("match #{prog} end").succeeds
+    end
+  end
+  describe "A back reference" do
+    let(:prog) { '@myvar' }
+
+    it 'can be parsed (#capture)' do
+      @parser.capture.parse_with_debug(prog).succeeds
+    end
+    it 'can be parsed' do
       @parser.parse_with_debug("match #{prog} end").succeeds
     end
   end
@@ -239,7 +249,7 @@ describe Regexador do
       x.description, x.program, x.regex, x.examples
     describe "A program with captures (#{desc})" do
       begin
-        it("can be parsed") { @parser.parse(prog).succeeds }
+        it("can be parsed") { puts prog; @parser.parse_with_debug(prog).succeeds }
   
         pattern = Regexador.new(prog)
         rx = pattern.to_regex
