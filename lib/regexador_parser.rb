@@ -61,7 +61,7 @@ class Regexador::Parser
                           char_class | char | parameter | variable | capture }
                         # 'abc'        `a     :param      xyz        @xyz = ...
 
-  rule(:qualifier)     { (kANY | kMANY | kMAYBE).as(:qualifier) >> fancy_pattern.as(:match_item) }
+  rule(:qualifier)     { (kANY | kMANY | kMAYBE | kNOCASE).as(:qualifier) >> fancy_pattern.as(:match_item) }
 
   rule(:repeat1)       { numeric.as(:num1) }
   rule(:repeat2)       { repeat1 >> cCOMMA >> numeric.as(:num2) }

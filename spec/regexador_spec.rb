@@ -265,6 +265,8 @@ describe Regexador do
             end
           end
         end 
+        puts rx.class
+        puts wanted.class
         it("yields the expected regex") { (rx.should == wanted) if wanted }
       rescue => err
         puts "Error: #{err}"

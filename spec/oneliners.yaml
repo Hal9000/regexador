@@ -176,6 +176,18 @@
   - de
   - xyz
 - !ruby/object:Program
+  description: nocase-qualifier
+  program: nocase "ghi"
+  regex: !ruby/regexp /((?i)ghi)/
+  good:
+  - ghi
+  - GHI
+  - abGhicd
+  bad: 
+  - ''
+  - gh
+  - abc
+- !ruby/object:Program
   description: maybe-qualifier
   program: maybe "ghi"
   regex: !ruby/regexp /(ghi)?/

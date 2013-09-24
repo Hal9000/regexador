@@ -62,6 +62,7 @@ class Regexador::Transform < Parslet::Transform
   Any        = Node.make(:match_item)               { "(#@match_item)*" }
   Many       = Node.make(:match_item)               { "(#@match_item)+" }
   Maybe      = Node.make(:match_item)               { "(#@match_item)?" }
+  Nocase     = Node.make(:match_item)               { "((?i)#@match_item)" }
 
   Sequence    = Node.make(:elements) { elements.map(&:to_s).join }
   Alternation = Node.make(:elements) { '(' + elements.map(&:to_s).join('|') + ')' }
@@ -126,9 +127,10 @@ class Regexador::Transform < Parslet::Transform
   
   rule(:num1 => simple(:num1), :num2 => simple(:num2), :match_item => simple(:match_item)) { Repeat2.new(num1, num2, match_item) }
 
-  rule(:qualifier => 'any',   :match_item => simple(:match_item)) { Any.new(match_item) }
-  rule(:qualifier => 'many',  :match_item => simple(:match_item)) { Many.new(match_item) }
-  rule(:qualifier => 'maybe', :match_item => simple(:match_item)) { Maybe.new(match_item) }
+  rule(:qualifier => 'any',    :match_item => simple(:match_item)) { Any.new(match_item) }
+  rule(:qualifier => 'many',   :match_item => simple(:match_item)) { Many.new(match_item) }
+  rule(:qualifier => 'maybe',  :match_item => simple(:match_item)) { Maybe.new(match_item) }
+  rule(:qualifier => 'nocase', :match_item => simple(:match_item)) { Nocase.new(match_item) }
 
   rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assignment.new(@var, @rvalue) }
 

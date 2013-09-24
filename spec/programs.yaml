@@ -108,6 +108,23 @@
   - '25:30'
   - '19:43 pm'
   - '5:14  pm'
+- !ruby/object:Program
+  description: Using nocase
+  program: 'match BOS "abc" nocase "def" "ghi" EOS end'
+  regex: !ruby/regexp /^abc((?i)def)ghi$/
+  good:
+  - "abcdefghi"
+  - "abcDEFghi"
+  - "abcdEfghi"
+  bad:
+  - ""
+  - "x"
+  - "xabcdefghi"
+  - "abcdefghix"
+  - "aBcdefghi"
+  - "abcdefGhi"
+  - "abCdefghI"
+  - "abCdEfghI"
 # - !ruby/object:Program
 #   description: Simple use of two vars
 #   program: |
