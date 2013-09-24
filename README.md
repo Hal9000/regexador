@@ -137,6 +137,7 @@ Features still postponed:
     maybe PAT       Optional pattern             PAT?
     any PAT         Zero or more of pattern      PAT\*
     many PAT        One or more of pattern       PAT+
+    nocase PAT      Case-insensitive PAT         (?i)PAT
     0,1 * PAT       Same as maybe                PAT?
     1,3 * PAT       One to three of PAT          PAT{1,3}
     5 * PAT         Five of PAT                  PAT{5}
@@ -169,11 +170,12 @@ Features still postponed:
 
 ### Notes, precedence, etc.
 
-any, many, maybe, ...  These refer to the very next pattern (but parentheses are legal):
+any, many, maybe, nocase ...  These refer to the very next pattern (but parentheses are legal):
 
        maybe "abc" many "xyz"              /(abc)?(xyz)+/
        maybe many "def"                    /(def)+?/
        maybe ("abc" many "xyz")            /(abc(xyz)+)?/
+       "abc" nocase "def" "ghi"            /abc((?i)def)ghi/
 
 String concatenation is implied:
 
@@ -350,9 +352,18 @@ Determine whether a credit card number is valid    Regex: /^(?:4[0-9]{12}(?:[0-9
 1. What about pos/neg lookahead/lookbehind, possessive matches? Laziness??
 2. Do upto and thru really make sense?
 3. Do next and last really make sense?
-4. What about backreferences?
-5. How to handle /i (ignore-case)?
-6. How to handle /m? /o?
-7. What special symbols/anchors do we need to predefine?
-8. Possibly allow postfix repetition as well as prefix? (e.g.:  pattern \* 1,3)
-9. Other issues...
+4. How to handle /m? /o?
+5. What special symbols/anchors do we need to predefine?
+6. Possibly allow postfix repetition as well as prefix? (e.g.:  pattern \* 1,3)
+7. Other issues...
+
+### Update history
+
+This history has been maintained only since version 0.4.2
+
+*0.4.2*
+  - UTF-8 encoding is assumed
+  - &xxxx notation can specify an arbitrary Unicode codepoint
+  - Backreferences work as expected
+  - Backreferences now can be inlined and parenthesized
+  - The nocase qualifier permits case-insensitive sub-expressions

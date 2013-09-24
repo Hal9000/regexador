@@ -121,20 +121,20 @@ describe Regexador do
     let(:prog) { "@myvar = maybe 'abc'" }
 
     it "can be parsed (#capture)" do
-      @parser.capture.parse_with_debug(prog).succeeds
+      @parser.capture.parse(prog).succeeds
     end
     it "can be parsed (#program)" do
-      @parser.parse_with_debug("match #{prog} end").succeeds
+      @parser.parse("match #{prog} end").succeeds
     end
   end
   describe "A back reference" do
     let(:prog) { '@myvar' }
 
     it 'can be parsed (#capture)' do
-      @parser.capture.parse_with_debug(prog).succeeds
+      @parser.capture.parse(prog).succeeds
     end
     it 'can be parsed' do
-      @parser.parse_with_debug("match #{prog} end").succeeds
+      @parser.parse("match #{prog} end").succeeds
     end
   end
   
@@ -211,7 +211,7 @@ describe Regexador do
         bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not =~ str } }
         good.each {|str| it("should natively match #{str.inspect}") { (!!(pattern =~ str)).should == true } }
         bad.each  {|str| it("should not natively match #{str.inspect}") { (!!(pattern =~ str)).should == false } }
-        it("yields the expected regex") { (rx.should == wanted) if wanted }
+        it("yields the expected regex") { (rx.to_s.should == wanted.to_s) if wanted }
         # Sanity check... does the expected regex really match properly?
         good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
         bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
@@ -237,7 +237,7 @@ describe Regexador do
       bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not match(str) } }
       good.each {|str| it("should natively match #{str.inspect}") { (!!(pattern =~ str)).should == true } }
       bad.each  {|str| it("should not natively match #{str.inspect}") { (!!(pattern =~ str)).should == false } }
-      it("yields the expected regex") { (rx.should == wanted) if wanted }
+      it("yields the expected regex") { (rx.to_s.should == wanted.to_s) if wanted }
       # Sanity check... does the expected regex really match properly?
       good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
       bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
@@ -249,7 +249,7 @@ describe Regexador do
       x.description, x.program, x.regex, x.examples
     describe "A program with captures (#{desc})" do
       begin
-        it("can be parsed") { puts prog; @parser.parse_with_debug(prog).succeeds }
+        it("can be parsed") { @parser.parse(prog).succeeds }
   
         pattern = Regexador.new(prog)
         rx = pattern.to_regex
@@ -265,9 +265,7 @@ describe Regexador do
             end
           end
         end 
-        puts rx.class
-        puts wanted.class
-        it("yields the expected regex") { (rx.should == wanted) if wanted }
+        it("yields the expected regex") { (rx.to_s.should == wanted.to_s) if wanted }
       rescue => err
         puts "Error: #{err}"
       end
