@@ -63,14 +63,26 @@ class Regexador::Parser
 
   rule(:qualifier)     { (kANY | kMANY | kMAYBE | kNOCASE).as(:qualifier) >> fancy_pattern.as(:match_item) }
 
+###
+  rule(:pos_lookahead) { kFIND >> space? >> fancy_pattern.as(:findpat) >> space? >> 
+                         kWITH >> space? >> fancy_pattern.as(:pospat) }
+  rule(:neg_lookahead) { kFIND >> space? >> fancy_pattern.as(:findpat) >> space? >> 
+                         kWITHOUT >> space? >> fancy_pattern.as(:negpat) }
+  rule(:pos_lookbehind) { kWITH >> space? >> fancy_pattern.as(:pospat) >> space? >>
+                          kFIND >> space? >> fancy_pattern.as(:findpat) }
+  rule(:neg_lookbehind) { kWITHOUT >> space? >> fancy_pattern.as(:negpat) >> space? >>
+                          kFIND >> space? >> fancy_pattern.as(:findpat) }
+  rule(:lookaround)     { pos_lookahead | neg_lookahead | pos_lookbehind | neg_lookbehind }
+###
+
   rule(:repeat1)       { numeric.as(:num1) }
   rule(:repeat2)       { repeat1 >> cCOMMA >> numeric.as(:num2) }
   rule(:repetition)    { (repeat2 | repeat1) >> space? >> cTIMES >> space? >> fancy_pattern.as(:match_item) }
 
   rule(:parenthesized) { cLPAREN >> space? >> pattern >> space? >> cRPAREN }
 
-  rule(:fancy_pattern)    { space? >> (repetition | simple_pattern | qualifier | parenthesized) >> space? }
-                        #              num          `~"'             keyword     (
+  rule(:fancy_pattern) { space? >> (repetition | simple_pattern | qualifier | lookaround | parenthesized) >> space? }
+                       #            num          `~"'             keyword     find/with    (
 
   rule(:concat)        { (fancy_pattern >> (space? >> fancy_pattern).repeat(0)).as(:sequence) }
  
@@ -86,7 +98,8 @@ class Regexador::Parser
 
   rule(:single_line)      { endofline | space? >> pattern >> endofline }
 
-  rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1).as(:lines) >> space? >> kEND >> endofline.maybe }
+  rule(:multiline_clause) { space? >> kMATCH >> endofline >> single_line.repeat(1).as(:lines) >> space? >>
+                            kEND >> endofline.maybe }
 
   rule(:match_clause)  { multiline_clause | oneline_clause }
 

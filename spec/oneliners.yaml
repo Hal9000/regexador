@@ -954,3 +954,36 @@
   - "1111"
   - "x123y"
   - "x123456y"
+- !ruby/object:Program
+  description: Positive lookahead
+  program: "with (3*D \" dollars\") find 3*D"
+  regex: !ruby/regexp /(?=\d{3} dollars)\d{3}/
+  good:
+  - "101 dollars"
+  bad:
+  - "102 pesos"
+- !ruby/object:Program
+  description: Negative lookahead
+  program: 'without (3*D " pesos") find 3*D'
+  regex: !ruby/regexp /(?!\d{3} pesos)\d{3}/ 
+  good:
+  - "103 dollars"
+  - "104 euros"
+  bad:
+  - "105 pesos"
+- !ruby/object:Program
+  description: Positive lookbehind
+  program: 'with "USD" find 3*D'
+  regex: !ruby/regexp /(?<=USD)\d{3}/
+  good:
+  - "USD106"
+  bad:
+  - "EUR107"
+- !ruby/object:Program
+  description: Negative lookbehind
+  program: 'without "USD" find 3*D'
+  regex: !ruby/regexp /(?<!USD)\d{3}/
+  good:
+  - "EUR108"
+  bad:
+  - "USD109"
