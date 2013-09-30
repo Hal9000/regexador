@@ -181,3 +181,12 @@
   - "€  237"
   - "$  237"
   - "€ 23.456"
+- !ruby/object:Program
+  description: Using within (1)
+  program: |
+       within `/
+  regex: !ruby/regexp /\/(.*?)\//
+  good:
+  - "There is a /slash-delimited string/ here."
+  bad:
+  - "No such string here."

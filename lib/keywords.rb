@@ -9,10 +9,13 @@ class Regexador::Parser
   rule(:kMATCH)        { str("match") }
   rule(:kEND)          { str("end") }
   rule(:kNOCASE)       { str("nocase") }
+
   rule(:kWITH)         { str("with") }
   rule(:kWITHOUT)      { str("without") }
   rule(:kFIND)         { str("find") }
 
+  rule(:kWITHIN)       { str("within") }
+
   rule(:keyword)       { kANY   | kMANY    | kMAYBE | kMATCH | kEND | kNOCASE | 
-                         kWITH  | kWITHOUT | kFIND }
+                         kWITH  | kWITHOUT | kFIND  | kWITHIN }
 end
