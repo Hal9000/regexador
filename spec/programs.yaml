@@ -184,8 +184,8 @@
 - !ruby/object:Program
   description: Using within (1)
   program: |
-       within `/
-  regex: !ruby/regexp /\/(.*?)\//
+       match within `/ end
+  regex: !ruby/regexp /(\/.*?\/)/
   good:
   - "There is a /slash-delimited string/ here."
   bad:

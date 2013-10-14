@@ -954,6 +954,18 @@
   - "1111"
   - "x123y"
   - "x123456y"
+#
+- !ruby/object:Program
+  description: Simple lookaround (pos-ahead)
+  program: 'find "X" with "Y"'
+  regex: !ruby/regexp /(?=XY)X/
+  good:
+  - "XY"
+  bad:
+  - "X"
+  - "Y"
+  - "YX"
+#
 - !ruby/object:Program
   description: Positive lookahead
   program: "with (3*D \" dollars\") find 3*D"

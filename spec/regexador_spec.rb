@@ -216,8 +216,8 @@ describe Regexador do
         good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
         bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
       rescue => err
-        puts "ERROR: #{err}"
-        puts "Description = '#{desc}'"
+        puts "--- ERROR: #{err}"
+        puts "--- Description = '#{desc}'"
         puts err.backtrace
       end
     end 
@@ -229,18 +229,24 @@ describe Regexador do
     desc, prog, wanted, good, bad = 
       x.description, x.program, x.regex, x.good, x.bad
     describe "A complete program (#{desc})" do
-      it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
-      pattern = Regexador.new(prog)
-      rx = pattern.to_regex
-      it("can be converted to a regex") { rx.class.should == Regexp }
-      good.each {|str| it("should match #{str.inspect}") { rx.should match(str) } }
-      bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not match(str) } }
-      good.each {|str| it("should natively match #{str.inspect}") { (!!(pattern =~ str)).should == true } }
-      bad.each  {|str| it("should not natively match #{str.inspect}") { (!!(pattern =~ str)).should == false } }
-      it("yields the expected regex") { (rx.to_s.should == wanted.to_s) if wanted }
-      # Sanity check... does the expected regex really match properly?
-      good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
-      bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
+      begin
+        it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
+        pattern = Regexador.new(prog)
+        rx = pattern.to_regex
+        it("can be converted to a regex") { rx.class.should == Regexp }
+        good.each {|str| it("should match #{str.inspect}") { rx.should match(str) } }
+        bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not match(str) } }
+        good.each {|str| it("should natively match #{str.inspect}") { (!!(pattern =~ str)).should == true } }
+        bad.each  {|str| it("should not natively match #{str.inspect}") { (!!(pattern =~ str)).should == false } }
+        it("yields the expected regex") { (rx.to_s.should == wanted.to_s) if wanted }
+        # Sanity check... does the expected regex really match properly?
+        good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
+        bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
+      rescue => err
+        puts "--- ERROR: #{err}"
+        puts "--- Description = '#{desc}'"
+        puts err.backtrace
+      end
     end 
   end
 

@@ -67,6 +67,9 @@ class Regexador::Parser
 ###
   rule(:pos_lookahead) { kFIND >> space? >> fancy_pattern.as(:findpat) >> space? >> 
                          kWITH >> space? >> fancy_pattern.as(:pospat) }
+=begin
+--- ERROR: premature end of char-class: /{:definitions=>[], :match=>{:alternation=>{:sequence=>{:pospat=>Sequence(elements=[Repeat1(num1="3"@12, match_item=Predefined(pre="D"@14)), StringNode(string=" dollars"@17)]), :findpat=>Repeat1(num1="3"@33, match_item=Predefined(pre="D"@35))}}}}/
+=end
   rule(:neg_lookahead) { kFIND >> space? >> fancy_pattern.as(:findpat) >> space? >> 
                          kWITHOUT >> space? >> fancy_pattern.as(:negpat) }
   rule(:pos_lookbehind) { kWITH >> space? >> fancy_pattern.as(:pospat) >> space? >>
