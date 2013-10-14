@@ -114,6 +114,7 @@ class Regexador::Transform < Parslet::Transform
   with X find Y       # /(?<=X)Y/     - pos lookbehind
   without X find Y    # /(?<!X)Y/     - neg lookbehind
 =end
+
   PosAhead  = Node.make(:pla1, :pla2)  { "(?=#@pla1#@pla2)#@pla1" }
   NegAhead  = Node.make(:nla1, :nla2)  { "(?!#@nla1#@nla2)#@nla1" }
   PosBehind = Node.make(:plb1, :plb2)  { "(?<=#@plb1)#@plb2" }
@@ -150,12 +151,6 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'maybe',  :match_item => simple(:match_item)) { Maybe.new(match_item) }
   rule(:qualifier => 'nocase', :match_item => simple(:match_item)) { Nocase.new(match_item) }
   rule(:qualifier => 'within', :match_item => simple(:match_item)) { Within.new(match_item) }
-
-## FIXME missing rules for lookarounds
-
-=begin
---- ERROR: premature end of char-class: /{:definitions=>[], :match=>{:alternation=>{:sequence=>{:pospat=>Sequence(elements=[Repeat1(num1="3"@12, match_item=Predefined(pre="D"@14)), StringNode(string=" dollars"@17)]), :findpat=>Repeat1(num1="3"@33, match_item=Predefined(pre="D"@35))}}}}/
-=end
 
   rule(:findpat => simple(:pla1), :pospat => simple(:pla2)) { PosAhead.new(pla1, pla2) }
   rule(:findpat => simple(:nla1), :negpat => simple(:nla2)) { NegAhead.new(nla1, nla2) }

@@ -955,6 +955,11 @@
   - "x123y"
   - "x123456y"
 #
+# find X with Y       # /(?=XY)X/     - pos lookahead
+# find X without Y    # /(?!XY)X/     - neg lookahead
+# with X find Y       # /(?<=X)Y/     - pos lookbehind
+# without X find Y    # /(?<!X)Y/     - neg lookbehind
+
 - !ruby/object:Program
   description: Simple lookaround (pos-ahead)
   program: 'find "X" with "Y"'
@@ -965,10 +970,40 @@
   - "X"
   - "Y"
   - "YX"
+- !ruby/object:Program
+  description: Simple lookaround (neg-ahead)
+  program: 'find "X" without "Y"'
+  regex: !ruby/regexp /(?!XY)X/
+  good:
+  - "X"
+  - "YX"
+  bad:
+  - "XY"
+  - "Y"
+- !ruby/object:Program
+  description: Simple lookaround (pos-behind)
+  program: 'with "X" find "Y"'
+  regex: !ruby/regexp /(?<=X)Y/
+  good:
+  - "XY"
+  bad:
+  - "YX"
+  - "Y"
+  - "X"
+- !ruby/object:Program
+  description: Simple lookaround (neg-behind)
+  program: 'without "X" find "Y"'
+  regex: !ruby/regexp /(?<!X)Y/
+  good:
+  - "aY"
+  - "Y"
+  bad:
+  - "XY"
+  - "X"
 #
 - !ruby/object:Program
   description: Positive lookahead
-  program: "with (3*D \" dollars\") find 3*D"
+  program: "find (3*D \" dollars\") with 3*D"
   regex: !ruby/regexp /(?=\d{3} dollars)\d{3}/
   good:
   - "101 dollars"
@@ -976,7 +1011,7 @@
   - "102 pesos"
 - !ruby/object:Program
   description: Negative lookahead
-  program: 'without (3*D " pesos") find 3*D'
+  program: 'find 3*D without " pesos"'
   regex: !ruby/regexp /(?!\d{3} pesos)\d{3}/ 
   good:
   - "103 dollars"
