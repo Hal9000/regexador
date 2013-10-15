@@ -15,7 +15,8 @@ class Regexador::Parser
   rule(:kFIND)         { str("find") }
 
   rule(:kWITHIN)       { str("within") }
+  rule(:kESCAPING)     { str("escaping") }
 
-  rule(:keyword)       { kANY   | kMANY    | kMAYBE | kMATCH | kEND | kNOCASE | 
-                         kWITH  | kWITHOUT | kFIND  | kWITHIN }
+  rule(:keyword)       { kANY   | kMANY    | kMAYBE | kMATCH  | kEND | kNOCASE | 
+                         kWITH  | kWITHOUT | kFIND  | kWITHIN | kESCAPING }
 end

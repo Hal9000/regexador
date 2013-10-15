@@ -64,12 +64,14 @@ class Regexador::Transform < Parslet::Transform
   Maybe      = Node.make(:match_item)               { "(#@match_item)?" }
   Nocase     = Node.make(:match_item)               { "((?i)#@match_item)" }
 
-  FindWith   = Node.make(:findpat, :pospat)         { "((?=#@findpat#@pospat)#@findpat)" }
+  FindWith    = Node.make(:findpat, :pospat)         { "((?=#@findpat#@pospat)#@findpat)" }
   FindWithout = Node.make(:findpat, :negpat)        { "((?!#@findpat#@negpat)#@findpat)" }
-  WithFind   = Node.make(:pospat, :findpat)         { "((?<=#@pospat)#@findpat)" }
+  WithFind    = Node.make(:pospat, :findpat)         { "((?<=#@pospat)#@findpat)" }
   WithoutFind = Node.make(:negpat, :findpat)        { "((?<!#@negpat)#@pospat)" }
 
   Within     = Node.make(:delim)                    { "(#@delim.*?#@delim)" }   # /x[^y]*?y/ 
+  Escaping   = Node.make(:delim)                    { "\\#@delim|[^#@delim]*?#@delim" }
+# escaping `"         # /"(\\"|[^"])*?"/
 
   Sequence    = Node.make(:elements) { elements.map(&:to_s).join }
   Alternation = Node.make(:elements) { '(' + elements.map(&:to_s).join('|') + ')' }
@@ -108,13 +110,6 @@ class Regexador::Transform < Parslet::Transform
 
   Parameter = Node.make(:param) { "(#{param}){0}" }
 
-=begin
-  find X with Y       # /(?=XY)X/     - pos lookahead
-  find X without Y    # /(?!XY)X/     - neg lookahead
-  with X find Y       # /(?<=X)Y/     - pos lookbehind
-  without X find Y    # /(?<!X)Y/     - neg lookbehind
-=end
-
   PosAhead  = Node.make(:pla1, :pla2)  { "(?=#@pla1#@pla2)#@pla1" }
   NegAhead  = Node.make(:nla1, :nla2)  { "(?!#@nla1#@nla2)#@nla1" }
   PosBehind = Node.make(:plb1, :plb2)  { "(?<=#@plb1)#@plb2" }
@@ -151,6 +146,7 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'maybe',  :match_item => simple(:match_item)) { Maybe.new(match_item) }
   rule(:qualifier => 'nocase', :match_item => simple(:match_item)) { Nocase.new(match_item) }
   rule(:qualifier => 'within', :match_item => simple(:match_item)) { Within.new(match_item) }
+  rule(:qualifier => 'escaping', :match_item => simple(:match_item)) { Escaping.new(match_item) }
 
   rule(:findpat => simple(:pla1), :pospat => simple(:pla2)) { PosAhead.new(pla1, pla2) }
   rule(:findpat => simple(:nla1), :negpat => simple(:nla2)) { NegAhead.new(nla1, nla2) }

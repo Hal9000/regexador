@@ -190,3 +190,12 @@
   - "There is a /slash-delimited string/ here."
   bad:
   - "No such string here."
+- !ruby/object:Program
+  description: Using escaping (1)
+  program: |
+       match escaping `/ end
+  regex: !ruby/regexp /\/|[^\/]*?\//
+  good:
+  - "This is /slash-delimited but \\/with embedded slashes \\/ also /."
+  bad:
+  - "No such string here."

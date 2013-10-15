@@ -218,7 +218,7 @@ describe Regexador do
       rescue => err
         puts "--- ERROR: #{err}"
         puts "--- Description = '#{desc}'"
-        puts err.backtrace
+        puts err.backtrace.find(/regexador_/).first
       end
     end 
   end
@@ -245,7 +245,7 @@ describe Regexador do
       rescue => err
         puts "--- ERROR: #{err}"
         puts "--- Description = '#{desc}'"
-        puts err.backtrace
+        puts err.backtrace.find(/regexador_/).first
       end
     end 
   end
