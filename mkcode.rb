@@ -7,57 +7,28 @@ end
 
 Capture = Program
 
-# class Capture
-#   attr_accessor :description, :program, :regex, :examples
-#   # examples is a hash of the form:
-#   #   { str1 => {var1 => exp1, var2 => exp2, ...}, 
-#   #     str2 => {var1 => exp1, var2 => exp2, ...}, 
-#   #     ...}
-# end
-
+def escape(str)
+  str.inspect[1..-1].gsub(/\\n/, "\n")
+end
 
 @oneliners = YAML.load(File.read("spec/oneliners.yaml"))
 @programs  = YAML.load(File.read("spec/programs.yaml"))
 @captures  = YAML.load(File.read("spec/captures.yaml"))
 
-# before(:all) do
-#   @parser = Regexador::Parser.new 
-#   @pattern = @parser.pattern
-# end
-  
-# @oneliners.each do |x|
-#   desc, pat, wanted, good, bad = 
-#     x.description, x.program, x.regex, x.good, x.bad
-#   describe "A one-pattern program (#{desc})" do
-#     begin
-#       prog = "match #{pat} end"
-#       it("can be parsed") { @parser.parse_with_debug(prog).succeeds }
-#       pattern = Regexador.new(prog)
-#       rx = pattern.to_regex
-#       it("can be converted to a regex") { rx.class.should == Regexp }
-#       good.each {|str| it("should match #{str.inspect}") { rx.should =~ str } }
-#       bad.each  {|str| it("should not match #{str.inspect}") { rx.should_not =~ str } }
-#       good.each {|str| it("should natively match #{str.inspect}") { (!!(pattern =~ str)).should == true } }
-#       bad.each  {|str| it("should not natively match #{str.inspect}") { (!!(pattern =~ str)).should == false } }
-#       it("yields the expected regex") { (rx.to_s.should == wanted.to_s) if wanted }
-#       # Sanity check... does the expected regex really match properly?
-#       good.each {|str| it("has an expected regex matching #{str.inspect}") { wanted.should =~ str } }
-#       bad.each  {|str| it("has an expected regex not matching #{str.inspect}") { wanted.should_not =~ str } }
-#     rescue => err
-#       puts "--- ERROR: #{err}"
-#       puts "--- Description = '#{desc}'"
-#       puts err.backtrace
-#     end
-#   end 
-# end
-
 text = <<-EOF
-  require_relative 'lib/regexador'
+  require_relative '../lib/regexador'
   require 'pp'
 
   require 'parslet/convenience'
   require 'parslet/rig/rspec'
 
+  describe Regexador do
+
+  before(:all) do
+    @parser = Regexador::Parser.new 
+    @pattern = @parser.pattern
+  end
+  
 EOF
 
 num = 0
@@ -81,6 +52,7 @@ programs = @oneliners + @programs
 
       good = <%= good.inspect %>
       bad  = <%= bad.inspect %>
+      wanted = <%= wanted.inspect %>
 
       it("should parse correctly") { @parser.should parse(prog) }
 
@@ -92,11 +64,11 @@ programs = @oneliners + @programs
 
       # Check sanity: Is test valid?
       <% if good %>good.each {|str| it('has expected regex matching ' + str.inspect) { wanted.should =~ str } } <% end %>
-      <% if bad %>bad.each  {|str| it("has expected regex should NOT matching ' + str.inspect) { wanted.should_not =~ str } } <% end %>
+      <% if bad %>bad.each  {|str| it('has expected regex NOT matching ' + str.inspect) { wanted.should_not =~ str } } <% end %>
 
       # Is compiled result valid?
       <% if good %>good.each {|str| it('should match ' + str.inspect) { rx.should =~ str } } <% end %>
-      <% if bad %>bad.each  {|str| it("should NOT match ' + str.inspect) { rx.should_not =~ str } } <% end %>
+      <% if bad %>bad.each  {|str| it('should NOT match ' + str.inspect) { rx.should_not =~ str } } <% end %>
 
       <% if examples %># Are there capture examples to test?
         examples.each do |example|
@@ -110,10 +82,14 @@ programs = @oneliners + @programs
           end
         end 
       <% end %>
+      end
+
   ERB
 
   text << ERB.new(piece).result(binding)
 end
+
+text << "\n  end"
 
 puts text
 exit
