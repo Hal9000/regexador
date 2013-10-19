@@ -1,3 +1,4 @@
+# Encoding: UTF-8
 require_relative '../lib/regexador'
 require 'pp'
 
@@ -192,6 +193,52 @@ describe Regexador do
         match visa | mc | amex | diners | discover | jcb end
       EOF
       @parser.program.parse_with_debug(prog2).succeeds
+    end
+  end
+
+  class Program
+    def initialize code
+      @code = code
+      @full_program = "match #{@code} end"
+      @parser = Regexador::Parser.new 
+    end
+    def parseable?
+      @parser.parse_with_debug(@full_program) != nil
+    end
+    def parse
+      tree = @parser.pattern.parse(@code)
+      tree = tree[:alternation] \
+        if tree.size == 1 && tree.keys.first == :alternation
+      tree = tree[:sequence].first \
+        if tree.size == 1 && tree.keys.first == :sequence
+      tree
+    end
+    def regexp
+      Regexador.new(@full_program).to_regex
+    end
+  end
+  def self.program &block
+    let(:code, &block)
+    let(:program) { Program.new(code) }
+    let(:regexp) { program.regexp }
+
+    subject { program }
+  end
+
+  describe "Negative lookbehind" do
+    program { 'without "USD" find 3*D' }
+
+    it { should be_parseable }
+    it { regexp.should == /(?<!USD)(\d){3}/ }
+  end
+  describe "Negative lookahead" do
+    program { 'find 3*D without " pesos"' }
+
+    it "should parse as findpat/netpat" do
+      program.parse.should == {
+        findpat: {:num1=>"3", :match_item=>{:predef=>"D"}}, 
+        negpat: {:string=>" pesos"}
+      }
     end
   end
   
