@@ -234,7 +234,7 @@ describe Regexador do
   describe "Negative lookahead" do
     program { 'find 3*D without " pesos"' }
 
-    it "should parse as findpat/netpat" do
+    it "should parse as findpat/negpat" do
       program.parse.should == {
         findpat: {:num1=>"3", :match_item=>{:predef=>"D"}}, 
         negpat: {:string=>" pesos"}

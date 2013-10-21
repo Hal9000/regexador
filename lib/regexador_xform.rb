@@ -148,9 +148,9 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'within', :match_item => simple(:match_item)) { Within.new(match_item) }
   rule(:qualifier => 'escaping', :match_item => simple(:match_item)) { Escaping.new(match_item) }
 
-  # rule(:findpat => simple(:pla1), :pospat => simple(:pla2)) { PosAhead.new(pla1, pla2) }
-  # rule(:findpat => simple(:nla1), :negpat => simple(:nla2)) { NegAhead.new(nla1, nla2) }
-  # rule(:pospat => simple(:plb1), :findpat => simple(:plb2)) { PosBehind.new(plb1, plb2) }
+  rule(:findpat => simple(:pla1), :pospat => simple(:pla2)) { PosAhead.new(pla1, pla2) }
+  rule(:findpat => simple(:nla1), :negpat => simple(:nla2)) { NegAhead.new(nla1, nla2) }
+  rule(:pospat => simple(:plb1), :findpat => simple(:plb2)) { PosBehind.new(plb1, plb2) }
   rule(:negpat => simple(:nlb1), :findpat => simple(:nlb2)) { NegBehind.new(nlb1, nlb2) }
 
   rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assignment.new(@var, @rvalue) }
