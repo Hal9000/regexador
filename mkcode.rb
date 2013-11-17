@@ -29,6 +29,69 @@ text = <<-EOF
     @pattern = @parser.pattern
   end
   
+  class Program
+    attr_accessor :description, :program, :regex, :good, :bad, :examples
+
+    def initialize(full_program)
+      @code = @full_program = full_program
+      @parser = Regexador::Parser.new 
+    end
+
+    def parseable?
+      result = @parser.parse(@full_program) rescue nil  # != nil
+      !! result
+    end
+
+    def parse_pattern  # FIXME no longer used?
+      tree = @parser.pattern.parse(@code)
+      tree = tree[:alternation] \
+        if tree.size == 1 && tree.keys.first == :alternation
+      tree = tree[:sequence].first \
+        if tree.size == 1 && tree.keys.first == :sequence
+      tree
+    end
+
+    def parse
+      tree = @parser.parse(@full_program)
+    end
+
+    def debug_bad_program_parse
+      @parser.parse(@full_program)
+      atree = nil
+    rescue Parslet::ParseFailed => error
+      atree = error.cause.ascii_tree.split("\n")
+      lchar = /at line (\d+) char (\d+).$/
+      fname = rand(10**5).to_s + ".tree"
+      File.open(fname, "w") {|f| f.puts @full_program + "\n" + atree.join("\n") }
+      puts "See file: " + fname
+      return
+      # FIXME bad logic below
+      begin
+        atree.map! do |line|
+          line.gsub!(/`- |\|- |\|  /, "   ")
+          _, ln, cn = line.match(lchar).to_a
+          line.sub!(lchar, "")
+          line.sub!(/   /, "  ")
+          line = '%-5s' % (ln+':'+cn) + line
+        end
+      rescue
+      end
+      puts atree
+    end
+
+    def regexp
+      Regexador.new(@full_program).to_regex
+    end
+  end
+
+
+  def self.program &block
+    let(:code, &block)
+    let(:program) { Program.new(code) }
+    let(:regexp) { program.regexp }
+
+    subject { program }
+  end
 EOF
 
 num = 0
@@ -45,8 +108,8 @@ programs = @oneliners + @programs
 
     ### Test <%= num %>: <%= desc %>
 
-    describe "A one-pattern program (<%= desc %>)" do
-      prog = <<-END
+    describe "A correct program (<%= desc %>)" do
+      prog = <<-'END'
         <%= pat %>
       END
 
@@ -54,15 +117,22 @@ programs = @oneliners + @programs
       bad  = <%= bad.inspect %>
       wanted = <%= wanted.inspect %>
 
-      it("should parse correctly") { @parser.should parse(prog) }
+      myprog = Program.new(prog)
+      parsed = nil
+
+      it "should parse correctly"  do
+        parsed = myprog.parseable?
+        myprog.debug_bad_program_parse unless parsed
+        parsed.should == true
+      end
 
       rx = nil
       it "can be converted to a regex" do
-        rx = Regexador.new(prog).to_regex
+        rx = myprog.regexp
         rx.class.should == Regexp
       end
 
-      # Check sanity: Is test valid?
+      <% if good or bad %># Check sanity: Is test valid?<% end %>
       <% if good %>good.each {|str| it('has expected regex matching ' + str.inspect) { wanted.should =~ str } } <% end %>
       <% if bad %>bad.each  {|str| it('has expected regex NOT matching ' + str.inspect) { wanted.should_not =~ str } } <% end %>
 
