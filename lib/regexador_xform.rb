@@ -64,10 +64,10 @@ class Regexador::Transform < Parslet::Transform
   Maybe      = Node.make(:match_item)               { "(#@match_item)?" }
   Nocase     = Node.make(:match_item)               { "((?i)#@match_item)" }
 
-  FindWith    = Node.make(:findpat, :pospat)         { "((?=#@findpat#@pospat)#@findpat)" }
-  FindWithout = Node.make(:findpat, :negpat)        { "((?!#@findpat#@negpat)#@findpat)" }
-  WithFind    = Node.make(:pospat, :findpat)         { "((?<=#@pospat)#@findpat)" }
-  WithoutFind = Node.make(:negpat, :findpat)        { "((?<!#@negpat)#@pospat)" }
+  FindWith    = Node.make(:findpat_ahead, :pospat)  { "((?=#@findpat_ahead#@pospat)#@findpat_ahead)" }
+  FindWithout = Node.make(:findpat_ahead, :negpat)  { "((?!#@findpat#@negpat)#@findpat)" }
+  WithFind    = Node.make(:pospat, :findpat_behind) { "((?<=#@pospat)#@findpat)" }
+  WithoutFind = Node.make(:negpat, :findpat_behind) { "((?<!#@negpat)#@pospat)" }
 
   Within     = Node.make(:delim)                    { "(#@delim.*?#@delim)" }   # /x[^y]*?y/ 
   Escaping   = Node.make(:delim)                    { "\\#@delim|[^#@delim]*?#@delim" }
@@ -148,10 +148,10 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'within', :match_item => simple(:match_item)) { Within.new(match_item) }
   rule(:qualifier => 'escaping', :match_item => simple(:match_item)) { Escaping.new(match_item) }
 
-  rule(:findpat => simple(:pla1), :pospat => simple(:pla2)) { PosAhead.new(pla1, pla2) }
-  rule(:findpat => simple(:nla1), :negpat => simple(:nla2)) { NegAhead.new(nla1, nla2) }
-  rule(:pospat => simple(:plb1), :findpat => simple(:plb2)) { PosBehind.new(plb1, plb2) }
-  rule(:negpat => simple(:nlb1), :findpat => simple(:nlb2)) { NegBehind.new(nlb1, nlb2) }
+  rule(:findpat_ahead => simple(:pla1), :pospat => simple(:pla2))  { STDERR.puts "PA"; PosAhead.new(pla1, pla2) }
+  rule(:findpat_ahead => simple(:nla1), :negpat => simple(:nla2))  { STDERR.puts "NA"; NegAhead.new(nla1, nla2) }
+  rule(:pospat => simple(:plb1), :findpat_behind => simple(:plb2)) { STDERR.puts "PB: #{[plb1,plb2].inspect}"; PosBehind.new(plb1, plb2) }
+  rule(:negpat => simple(:nlb1), :findpat_behind => simple(:nlb2)) { STDERR.puts "NB"; NegBehind.new(nlb1, nlb2) }
 
   rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assignment.new(@var, @rvalue) }
 

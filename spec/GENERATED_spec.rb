@@ -14,13 +14,13 @@
   class Program
     attr_accessor :description, :program, :regex, :good, :bad, :examples
 
-    def initialize(full_program)
-      @code = @full_program = full_program
+    def initialize(code)
+      @code = code
       @parser = Regexador::Parser.new 
     end
 
     def parseable?
-      result = @parser.parse(@full_program) rescue nil  # != nil
+      result = @parser.parse(@code) rescue nil  # != nil
       !! result
     end
 
@@ -32,18 +32,18 @@
     end
 
     def parse
-      tree = @parser.parse(@full_program)
+      tree = @parser.parse(@code)
     end
 
     def debug_bad_program_parse
-      @parser.parse(@full_program)
+      @parser.parse(@code)
       atree = nil
     rescue Parslet::ParseFailed => error
       atree = error.cause.ascii_tree.split("
 ")
       lchar = /at line (d+) char (d+).$/
       fname = rand(10**5).to_s + ".tree"
-      File.open(fname, "w") {|f| f.puts @full_program + "
+      File.open(fname, "w") {|f| f.puts @code + "
 " + atree.join("
 ") }
       puts "See file: " + fname
@@ -63,7 +63,7 @@
     end
 
     def regexp
-      Regexador.new(@full_program).to_regex
+      Regexador.new(@code).to_regex
     end
   end
 

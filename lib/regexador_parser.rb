@@ -67,14 +67,14 @@ class Regexador::Parser
 # FIXME above: within and escaping can't really take an arbitrary pattern
 
 ###
-  rule(:pos_lookahead) { kFIND >> space >> fancy_pattern.as(:findpat) >> space >> 
-                         kWITH >> space >> fancy_pattern.as(:pospat) }
-  rule(:neg_lookahead) { kFIND >> space >> fancy_pattern.as(:findpat) >> space >> 
-                         kWITHOUT >> space >> fancy_pattern.as(:negpat) }
-  rule(:pos_lookbehind) { kWITH >> space >> fancy_pattern.as(:pospat) >> space >>
-                          kFIND >> space >> fancy_pattern.as(:findpat) }
-  rule(:neg_lookbehind) { kWITHOUT >> space >> fancy_pattern.as(:negpat) >> space >>
-                          kFIND >> space >> fancy_pattern.as(:findpat) }
+  rule(:pos_lookahead) { kFIND >> space >> simple_pattern.as(:findpat_ahead) >> space >> 
+                         kWITH >> space >> simple_pattern.as(:pospat) }
+  rule(:neg_lookahead) { kFIND >> space >> simple_pattern.as(:findpat_ahead) >> space >> 
+                         kWITHOUT >> space >> simple_pattern.as(:negpat) }
+  rule(:pos_lookbehind) { kWITH >> space >> simple_pattern.as(:pospat) >> space >>
+                          kFIND >> space >> simple_pattern.as(:findpat_behind) }
+  rule(:neg_lookbehind) { kWITHOUT >> space >> simple_pattern.as(:negpat) >> space >>
+                          kFIND >> space >> simple_pattern.as(:findpat_behind) }
   rule(:lookaround)     { pos_lookahead | neg_lookahead | pos_lookbehind | neg_lookbehind }
 ###
 
