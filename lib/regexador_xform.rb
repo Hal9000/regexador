@@ -111,7 +111,7 @@ class Regexador::Transform < Parslet::Transform
   Parameter = Node.make(:param) { "(#{param}){0}" }
 
   PosAhead  = Node.make(:pla1, :pla2)  { "(?=#@pla1#@pla2)#@pla1" }
-  NegAhead  = Node.make(:nla1, :nla2)  { "(?!#@nla2#@nla2)#@nla1" }
+  NegAhead  = Node.make(:nla1, :nla2)  { "(?!#@nla1#@nla2)#@nla1" }
   PosBehind = Node.make(:plb1, :plb2)  { "(?<=#@plb1)#@plb2" }
   NegBehind = Node.make(:nlb1, :nlb2)  { "(?<!#@nlb1)#@nlb2" }
 
@@ -148,10 +148,10 @@ class Regexador::Transform < Parslet::Transform
   rule(:qualifier => 'within', :match_item => simple(:match_item)) { Within.new(match_item) }
   rule(:qualifier => 'escaping', :match_item => simple(:match_item)) { Escaping.new(match_item) }
 
-  rule(:findpat_ahead => simple(:pla1), :pospat => simple(:pla2))  { STDERR.puts "PA"; PosAhead.new(pla1, pla2) }
-  rule(:findpat_ahead => simple(:nla1), :negpat => simple(:nla2))  { STDERR.puts "NA"; NegAhead.new(nla1, nla2) }
-  rule(:pospat => simple(:plb1), :findpat_behind => simple(:plb2)) { STDERR.puts "PB: #{[plb1,plb2].inspect}"; PosBehind.new(plb1, plb2) }
-  rule(:negpat => simple(:nlb1), :findpat_behind => simple(:nlb2)) { STDERR.puts "NB"; NegBehind.new(nlb1, nlb2) }
+  rule(:findpat_ahead => simple(:pla1), :pospat => simple(:pla2))  { PosAhead.new(pla1, pla2) }
+  rule(:findpat_ahead => simple(:nla1), :negpat => simple(:nla2))  { NegAhead.new(nla1, nla2) }
+  rule(:pospat => simple(:plb1), :findpat_behind => simple(:plb2)) { PosBehind.new(plb1, plb2) }
+  rule(:negpat => simple(:nlb1), :findpat_behind => simple(:nlb2)) { NegBehind.new(nlb1, nlb2) }
 
   rule(:var => simple(:var), :rvalue => simple(:rvalue)) { Assignment.new(@var, @rvalue) }
 

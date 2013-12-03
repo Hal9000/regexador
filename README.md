@@ -361,6 +361,10 @@ Determine whether a credit card number is valid    Regex: /^(?:4[0-9]{12}(?:[0-9
 
 This history has been maintained only since version 0.4.2
 
+*0.4.3*
+  - Experimenting with lookarounds (pos/neg lookahead/behind)
+  - Rearranged tests
+  - Added "escaping" keyword
 *0.4.2*
   - UTF-8 encoding is assumed
   - &xxxx notation can specify an arbitrary Unicode codepoint

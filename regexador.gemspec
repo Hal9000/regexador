@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "regexador"
-  s.version     = '0.4.2'  
+  s.version     = '0.4.5'  
   s.authors     = ["Hal Fulton", "Kaspar Schiess"]
   s.email       = ["rubyhacker@gmail.com"]
   s.homepage    = "http://github.com/hal9000/regexador"
@@ -31,10 +31,10 @@ EOS
                        lib/regexador.rb
                        lib/regexador_parser.rb
                        lib/regexador_xform.rb]
-  s.test_files    = %w[spec/captures.yaml
-                       spec/oneliners.yaml
-                       spec/programs.yaml
-                       spec/regexador_spec.rb]
+  s.test_files    = %w[spec/testing.rb
+                       spec/parsing_spec.rb
+                       spec/programs_spec.rb
+                       spec/captures_spec.rb]
   s.executables   = []
   s.require_paths = ["lib"]
 

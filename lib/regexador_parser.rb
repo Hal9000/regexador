@@ -106,7 +106,7 @@ class Regexador::Parser
 
   rule(:match_clause)  { multiline_clause | oneline_clause }
 
-  rule(:program)       { definitions.as(:definitions) >> match_clause.as(:match) }
+  rule(:program)       { definitions.as(:definitions) >> match_clause.as(:match) >> endofline.repeat(0) }
 
   root(:program)
 end
