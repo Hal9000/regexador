@@ -1,3 +1,15 @@
+**UPDATING for 2019**
+  - create gemspec
+  - update code for Ruby 2.6
+  - convert RSpec to MiniTest
+  - add more tests
+  - add more examples
+  - add a tutorial
+  - begin work on translating Ruby regexes
+  - investigate Python/Perl/Elixir compatibility
+  - investigate possibility of engine mockup with debugger
+
+
 # regexador
 
 An external DSL for Ruby that tries to make regular expressions readable and maintainable.
