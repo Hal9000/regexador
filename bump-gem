@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require 'date'
+
+$LOAD_PATH << "./lib"
+
+package = "regexador"
+
+today = Date.today.strftime("%Y-%m-%d")
+
+system("git pull")
+gs = `git status 2>&1`
+print "Commit message = "
+msg = gets.chomp
+system("git commit -m '#{msg}' && git push")
+
+update = <<-EOF
+  gem build #{package}.gemspec && 
+  gem push #{package}-*.gem && 
+  gem uninstall -x #{package} && 
+  gem install #{package}
+EOF
+
+system(update)
+
