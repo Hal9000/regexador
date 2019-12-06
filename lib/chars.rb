@@ -1,6 +1,7 @@
 abort "Require out of order" if ! defined? Regexador
 
 class Regexador::Parser 
+  rule(:cSPACE)      { str(" ") }
   rule(:cSQUOTE)     { str("'") }
   rule(:cQUOTE)      { str('"') }
   rule(:cAMPERSAND)  { str('&') }

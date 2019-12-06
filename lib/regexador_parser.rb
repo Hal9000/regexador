@@ -18,8 +18,9 @@ class Regexador::Parser
   rule(:lower)         { match('[a-z]') }
   rule(:upper)         { match('[A-Z]') }
 
-  rule(:comment)       { cHASH >> space >> (cNEWLINE.absent? >> any).repeat(0) }
+  rule(:comment)       { space? >> cHASH >> space >> (cNEWLINE.absent? >> any).repeat(0) >> cNEWLINE }
   rule(:endofline)     { space? >> comment.maybe >> cNEWLINE }
+  rule(:statement)     { (assignment | comment) }
 
   rule(:digit)         { match('[0-9]') }
   rule(:digits)        { digit.repeat(1) }
@@ -95,7 +96,7 @@ class Regexador::Parser
 
   rule(:assignment)    { space? >> name.as(:var) >> space? >> cEQUAL >> space? >> rvalue.as(:rvalue) }
 
-  rule(:definitions)   { (endofline | assignment >> endofline).repeat(0) }
+  rule(:definitions)   { (statement >> endofline).repeat(0).maybe }
 
   rule(:oneline_clause)   { space? >> kMATCH >> space? >> pattern >> kEND >> endofline.maybe }
 

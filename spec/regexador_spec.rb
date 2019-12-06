@@ -128,6 +128,7 @@ describe Regexador do
       @parser.parse("match #{prog} end").succeeds
     end
   end
+
   describe "A back reference" do
     let(:prog) { '@myvar' }
 
@@ -197,14 +198,17 @@ describe Regexador do
   end
 
   class Program
+
     def initialize code
       @code = code
       @full_program = "match #{@code} end"
       @parser = Regexador::Parser.new 
     end
+
     def parseable?
       @parser.parse_with_debug(@full_program) != nil
     end
+
     def parse
       tree = @parser.pattern.parse(@code)
       tree = tree[:alternation] \
@@ -213,10 +217,13 @@ describe Regexador do
         if tree.size == 1 && tree.keys.first == :sequence
       tree
     end
+
     def regexp
       Regexador.new(@full_program).to_regex
     end
+
   end
+
   def self.program &block
     let(:code, &block)
     let(:program) { Program.new(code) }
@@ -231,6 +238,7 @@ describe Regexador do
     it { should be_parseable }
     it { regexp.should == /(?<!USD)(\d){3}/ }
   end
+
   describe "Negative lookahead" do
     program { 'find 3*D without " pesos"' }
 
