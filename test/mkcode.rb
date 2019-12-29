@@ -35,13 +35,13 @@ def sanity_check(good, bad)
 
   if good
     fragment << <<-RUBY
-      good.each {|str| assert regex =~ str, "#{'#{str.inspect}'}: no match!" }
+      good.each {|str| assert regex =~ str, "Invalid test! No match for #{'#{str.inspect}'}" }
     RUBY
   end
 
   if bad 
     fragment << <<-RUBY
-      bad.each  {|str| refute regex =~ str, "#{'#{str.inspect}'}: unexpected match!" }
+      bad.each  {|str| refute regex =~ str, "Invalid test! Unexpected match for #{'#{str.inspect}'}" }
     RUBY
   end
 
@@ -58,13 +58,13 @@ def result_check(good, bad)
 
   if good 
     fragment << <<-RUBY
-      good.each {|str| assert rx =~ str, "Did not match: #{'#{str.inspect}'}" }
+      good.each {|str| assert regex =~ str, "Did not match: #{'#{str.inspect}'}" }
     RUBY
   end
 
   if bad 
     fragment << <<-RUBY
-      bad.each  {|str| refute rx =~ str, "Unexpected match: #{'#{str.inspect}'}" }
+      bad.each  {|str| refute regex =~ str, "Unexpected match: #{'#{str.inspect}'}" }
     RUBY
   end
   fragment
@@ -102,9 +102,7 @@ programs.each do |x|
       bad  = #{bad.inspect}
       regex = #{regex.inspect}
   
-      rx = prog.regexp
-      assert rx.class == Regexp, "Not a regex! #{'#{rx.inspect}'}"
-      assert rx == regex, "Expected: #{regex.inspect}\\nActual:   #{'#{rx.inspect}'}"
+      assert regex.class == Regexp, "Not a regex! #{'#{regex.inspect}'}"
 
   RUBY
 

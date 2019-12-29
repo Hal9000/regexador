@@ -23,7 +23,7 @@ it is not 100% mature. Syntax and semantics may change. Feel free to offer comme
 or suggestions.
 EOS
 
-  s.license       = "The Ruby License"
+  s.license       = "Ruby"
 
   s.files         = %w[README.md
                        lib/chars.rb

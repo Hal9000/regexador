@@ -1,0 +1,85 @@
+---
+- !ruby/object:Capture
+  description: US phone number
+  program: |
+       match
+         @area_code = 3 * D
+         `-
+         @prefix = 3 * D
+         `-
+         @last4 = 4 * D
+       end
+  regex: !ruby/regexp /(?<area_code>(\d){3})\-(?<prefix>(\d){3})\-(?<last4>(\d){4})/
+  examples:
+  - "512-555-2001":
+      :area_code: "512"
+      :prefix: "555"
+      :last4:  "2001"
+- !ruby/object:Capture
+  description: A simple backreference
+  program: |2
+       tag = many %alpha
+       match
+         `<
+         @tag = tag
+         `>
+         @cdata = any X
+         "</" 
+         @tag `>
+      end
+  regex: !ruby/regexp /<(?<tag>([[:alpha:]])+)>(?<cdata>(.)*)<\/\k<tag>>/
+  examples:
+  - "<body>abcd</body>":
+      :tag: "body"
+      :cdata: "abcd"
+  - "<table>table</table>":
+      :tag: "table"
+      :cdata: "table"
+- !ruby/object:Capture
+  description: A simple backreference again
+  program: |2
+       tag = many %alpha
+       match
+         `<
+         @tag = tag
+         `>
+         @cdata = any X
+         "</" @tag `>     # Slightly different code
+      end
+  regex: !ruby/regexp /<(?<tag>([[:alpha:]])+)>(?<cdata>(.)*)<\/\k<tag>>/
+  examples:
+  - "<body>abcd</body>":
+      :tag: "body"
+      :cdata: "abcd"
+  - "<table>table</table>":
+      :tag: "table"
+      :cdata: "table"
+- !ruby/object:Capture
+  description: A simple inline backreference with alternation
+  program: |2
+       match
+         BOS
+         (@var = "x") | (@var = "y") 
+         @var
+         EOS
+       end
+  regex: !ruby/regexp /^((?<var>x)|(?<var>y))\k<var>$/
+  examples:
+  - "xx":
+      :var: "x"
+  - "yy":
+      :var: "y"
+- !ruby/object:Capture
+  description: A simple inline capture
+  program: "match `a @var = `b `c end"
+  regex: !ruby/regexp /a(?<var>bc)/
+  examples:
+  - "abc":
+      :var: "bc"
+- !ruby/object:Capture
+  description: A simple inline capture with parens
+  program: "match `a (@var = `b) `c end"
+  regex: !ruby/regexp /a(?<var>b)c/
+  examples:
+  - "abc":
+      :var: "b"

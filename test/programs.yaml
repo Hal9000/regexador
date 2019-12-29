@@ -1,0 +1,201 @@
+---
+- !ruby/object:Program
+  description: Simple use of two vars
+  program: |
+       var1 = "abc"
+       var2 = "def"
+       match var1 var2 end
+  regex: !ruby/regexp /abcdef/
+  good:
+  - abcdefghi
+  - xyzabcdef
+  bad:
+  - ''
+  - abcxyzdef
+- !ruby/object:Program
+  description: Multiline match with two vars
+  program: "   var1 = \"abc\"\n   var2 = \"def\"\n        \n   # Test a blank line
+    and comment as well.\n \n   match   # multiline match with comment\n     var1\n
+    \    var2\n   end\n"
+  regex: !ruby/regexp /abcdef/
+  good:
+  - abcdefghi
+  - xyzabcdef
+  bad:
+  - ''
+  - abcxyzdef
+- !ruby/object:Program
+  description: IPv4 address
+  program: |
+       dot = "."
+       num = "25" D5 | `2 D4 D | maybe D1 1,2*D
+       match BOS num dot num dot num dot num EOS end
+  regex: !ruby/regexp /^(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})\.(25[0-5]|2[0-4]\d|([01])?(\d){1,2})$/
+  good:
+  - "127.0.0.1"
+  - "255.254.93.22"
+  - "255.254.93.22"
+  bad:
+  - ''
+  - "7.8.9"
+  - "3.4.5.6.7"
+  - "1.2.3.256"
+- !ruby/object:Program
+  description: Identifying credit cards
+  program: |
+       # Warning: This one likely has errors!
+        
+       visa     = `4 12*D maybe 3*D
+       mc       = `5 D5 14*D
+       discover = `6 ("011" | `5 2*D) 12*D
+       amex     = `3 '47' 13*D
+       diners   = `3 (`0 D5 | '68' D) 11*D
+       jcb      = ("2131"|"1800"|"35" 3*D) 11*D
+       
+       match visa | mc | discover | amex | diners | jcb end
+  regex: !ruby/regexp /(4(\d){12}((\d){3})?|5[0-5](\d){14}|6(011|5(\d){2})(\d){12}|3[47](\d){13}|3(0[0-5]|[68]\d)(\d){11}|(2131|1800|35(\d){3})(\d){11})/
+
+
+  good: []
+  bad: []
+- !ruby/object:Program
+  description: Matching US phone num (with captures)
+  program: |
+       match
+         @area_code = 3 * D
+         `-
+         @prefix = 3*D
+         `-
+         @last4 = 4*D
+       end
+# regex: !ruby/regexp /(?<area_code>\d{3}){0}(?<prefix>\d{3}){0}(?<last4>\d{4}){0}\g<area_code>-\g<prefix>-\g<last4>/
+  regex: !ruby/regexp /(?<area_code>(\d){3})\-(?<prefix>(\d){3})\-(?<last4>(\d){4})/
+  good:
+  - '601-555-2345'
+  - 'call me at 888-425-9000'
+  bad:
+  - '888-HAL-9000'
+  - '800.237.1234'
+- !ruby/object:Program
+  description: KNOWNFAIL Matching a clock time, 12/24 hrs
+  program: |
+       hr12 = (maybe `0) `1-`9 | `1 D2
+       hr24 = (maybe `0) D | `1 D | `2 D3
+       sep  = `: | `.
+       min  = D5 D9
+       sec  = D5 D9
+       ampm = (maybe SPACE) ("am" | "pm")
+       time12 = hr12 sep min maybe (sep sec) maybe ampm
+       time24 = hr24 sep min maybe (sep sec)
+       match BOS (time12 | time24) EOS end
+  regex: !ruby/regexp /^(((0)?[1-9]|1[0-2])(:|\.)[0-5]\d((:|\.)[0-5]\d)?(( )?(am|pm))?|((0)?\d|1\d|2[0-3])(:|\.)[0-5]\d((:|\.)[0-5]\d)?)$/
+  good:
+  - '12:34'
+  - '1:23'
+  - '5:14pm'
+  - '19:43'
+  - '1:23:45'
+  - '1:23:45 pm'
+  - '7:43 pm'
+  - '8:32:45'
+  - '8.34'
+  - '8.34 pm'
+  - '8.34.45'
+  bad:
+  - ''
+  - abc
+  - '24:30'
+  - '25:30'
+  - '19:43 pm'
+  - '5:14  pm'
+- !ruby/object:Program
+  description: Using nocase
+  program: 'match BOS "abc" nocase "def" "ghi" EOS end'
+  regex: !ruby/regexp /^abc((?i)def)ghi$/
+  good:
+  - "abcdefghi"
+  - "abcDEFghi"
+  - "abcdEfghi"
+  bad:
+  - ""
+  - "x"
+  - "xabcdefghi"
+  - "abcdefghix"
+  - "aBcdefghi"
+  - "abcdefGhi"
+  - "abCdefghI"
+  - "abCdEfghI"
+# - !ruby/object:Program
+#   description: Simple use of two vars
+#   program: |
+#   regex: !ruby/regexp //
+#   good:
+#   bad:
+- !ruby/object:Program
+  description: Var used in simple repetition
+  program: |
+       n = 3
+       match BOS n * `x EOS end
+  regex: !ruby/regexp /^(x){3}$/
+  good:
+  - "xxx"
+  bad:
+  - ""
+  - "x"
+  - "xx x"
+  - "xxxx"
+- !ruby/object:Program
+  description: Var used in complex repetition
+  program: |
+       m = 4
+       n = 6
+       match BOS m,n * `x EOS end
+  regex: !ruby/regexp /^(x){4,6}$/
+  good:
+  - "xxxx"
+  - "xxxxx"
+  - "xxxxxx"
+  bad:
+  - ""
+  - "x"
+  - "xx x"
+  - "xxx"
+  - "xxxxxxx"
+- !ruby/object:Program
+  description: Using Unicode codepoint again
+  program: |
+       euro = &20ac
+       price = (euro | "$") SPACE many D maybe ("." 2*D)
+       match BOS price EOS end
+  regex: !ruby/regexp /^(€|\$) (\d)+(\.(\d){2})?$/
+  good:
+  - "€ 237"
+  - "$ 237"
+  - "€ 23.45"
+  - "€ 0.25"
+  bad:
+  - ""
+  - "x"
+  - "€"
+  - "€ "
+  - "€  237"
+  - "$  237"
+  - "€ 23.456"
+- !ruby/object:Program
+  description: Using within (1)
+  program: |
+       match within `/ end
+  regex: !ruby/regexp /(\/.*?\/)/
+  good:
+  - "There is a /slash-delimited string/ here."
+  bad:
+  - "No such string here."
+- !ruby/object:Program
+  description: Using escaping (1)
+  program: |
+       match escaping `/ end
+  regex: !ruby/regexp /\/|[^\/]*?\//
+  good:
+  - "This is /slash-delimited but \\/with embedded slashes \\/ also /."
+  bad:
+  - "No such string here."
