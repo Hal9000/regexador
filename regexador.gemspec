@@ -1,9 +1,12 @@
-# encoding: utf-8
 $:.push File.expand_path("../lib", __FILE__)
+
+require 'date'
+require 'find'
 
 Gem::Specification.new do |s|
   s.name        = "regexador"
   s.version     = '0.4.6'  
+  s.date        = Date.today.strftime("%Y-%m-%d")
   s.authors     = ["Hal Fulton", "Kaspar Schiess"]
   s.email       = ["rubyhacker@gmail.com"]
   s.homepage    = "http://github.com/hal9000/regexador"
@@ -14,28 +17,19 @@ a "program" in a Ruby string is passed into some kind of parser/interpreter meth
 In this case, it is possible to use the result "as is" or to convert to an ordinary 
 Ruby regular expression.
 
-Though this mini-language was conceived and implemented "for Ruby, using Ruby," 
-in principle there is no reason it might not also be implemented in other languages
-such as Python or Perl.
+This project was originally implemented "for Ruby, using Ruby." Tentative efforts
+are being made for ports to Elixir and Python.
 
-Development on this project resumed in 2019 after being untouched for years. As such, 
+Development on this project resumed in 2019 after being untouched since 2015. As such, 
 it is not 100% mature. Syntax and semantics may change. Feel free to offer comments 
 or suggestions.
 EOS
 
   s.license       = "Ruby"
 
-  s.files         = %w[README.md
-                       lib/chars.rb
-                       lib/keywords.rb
-                       lib/predefs.rb
-                       lib/regexador.rb
-                       lib/regexador_parser.rb
-                       lib/regexador_xform.rb]
-  s.test_files    = %w[test/test.rb
-                       spec/testing.rb
-                       spec/parsing_spec.rb
-                       spec/programs_spec.rb]
+  s.files         = %w[README.md] + Find.find("lib").to_a
+  s.test_files    = Find.find("test").to_a + 
+                    Find.find("spec").to_a
   s.executables   = []
   s.require_paths = ["lib"]
 

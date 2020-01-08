@@ -1,10 +1,11 @@
-**UPDATING for 2019**
-  - create gemspec
-  - update code for Ruby 2.6
-  - convert RSpec to MiniTest
+**UPDATING for 2020**
+  - updated gemspec
+  - updating code for Ruby 2.6, 2.7
+  - converting RSpec to MiniTest
   - add more tests
   - add more examples
   - add a tutorial
+  - add a glossary
   - begin work on translating Ruby regexes
   - investigate Python/Perl/Elixir compatibility
   - investigate possibility of engine mockup with debugger
@@ -19,21 +20,25 @@ as [the wiki](http://github.com/Hal9000/regexador/wiki).
 
 ### The Basic Concept
 
-Many people are intimidated or confused by regular expressions. 
-A large part of this is the confusing syntax.
+Many people are intimidated or confused by regular expressions. A large part of 
+this is the complex syntax.
 
-Regexador is a mini-language purely for building regular expressions.
-It's purely a Ruby project for now, though in theory it could be
-implemented in/for other languages.
+Regexador is a mini-language purely for building regular expressions. It's purely 
+a Ruby project at the moment, although there are tentative plans for ports to 
+Elixir and Python.
 
-For an analogy, think of how we sometimes manipulate databases by
-constructing SQL queries and passing them into the appropriate 
+A traditional (or internal) Ruby DSL consists of creative use of methods and 
+operators to "fake" a language inside Ruby code. The internal DSL is itself
+Ruby code that must obeu Ruby syntax.
+
+But what is an external DSL? For an analogy, think of how we sometimes manipulate 
+databases by constructing SQL queries and passing them into the appropriate 
 methods. Regexador works much the same way.
 
 ### A Short Example
 
-Suppose we want to match a string consisting of a single IP address. 
-(Remember that the numbers can only range as high as 255.)
+Suppose we want to match a string consisting of a single IP address. (Remember that 
+the numbers can only range as high as 255.)
 
 Here is traditional regular expression notation:
 
@@ -45,11 +50,10 @@ And here is Regexador notation:
     num = "25" D5 | `2 D4 D | maybe D1 1,2*D
     match BOS num dot num dot num dot num EOS end
 
-In your Ruby code, you can create a Regexador "script" or "program"
-(probably by means of a here-document) that you can then pass into
-the Regexador class. At minimum, you can convert this into a "real" 
-Ruby regular expression; there are a few other features and functions, 
-and more may be added.
+In your Ruby code, you can create a Regexador "script" or "program" (probably 
+by means of a here-document) that you can then pass into the Regexador class. 
+At minimum, you can convert this into a "real" Ruby regular expression; there 
+are a few other features and functions, and more are being added.
 
 So here is a complete Ruby program:
 
@@ -75,9 +79,7 @@ So here is a complete Ruby program:
     end
 
 
-
 **Traditional Syntax: Things I Personally Dislike**
-
 - There are no keywords -- only punctuation.
  These symbols all have special meanings: ^$.\[]()+\*?  (and others)
 - ^ has at least three different meanings
@@ -93,42 +95,39 @@ So here is a complete Ruby program:
 
 ### Regexador at a Glance
 
-I'm attracted to old-fashioned line-oriented syntax; but I don't want
-to lock myself into that completely.
+I'm attracted to old-fashioned line-oriented syntax; but I don't want to lock 
+myself into that completely.
 
-In general, useful definitions (variables) will come first. Many things 
-are predefined already, such as all the usual anchors and the POSIX
-character classes. These are in all caps and are considered constants.
+In general, useful definitions (variables) will come first. Many things are 
+predefined already, such as all the usual anchors and the POSIX character 
+classes. These are in all caps and are considered constants.
 
-At the end, a *match* clause drives the actual building of the final
-regular expression. Within this clause, names may be assigned to the 
-individual sub-matches (using variables that start with "@"). These will
-naturally be available externally as named captures.
+At the end, a *match* clause drives the actual building of the final regular 
+expression. Within this clause, names may be assigned to the individual 
+sub-matches (using variables that start with "@"). These will naturally be 
+available externally as named captures.
 
-Because this is really just a "builder," and because we don't have "hooks"
-into the regular expression engine itself, a Regexador script will not 
-look or act much like a "real program." There will be no arithmetic, no
-function calls, no looping or branching. Also there can be no printing
-of debug information "at matching time"; in principle, printing could be 
-done during parsing/compilation, but I don't see any value in this. 
+Because this is really just a "builder," and because we don't have "hooks" into 
+the regular expression engine itself, a Regexador script will not look or act 
+much like a "real program." There will be no arithmetic, no function calls, no 
+looping or branching. Also there can be no printing of debug information "at 
+matching time"; in principle, printing could be done during parsing/compilation,
+but I don't see any value in this. 
 
-Of course, syntax errors in Regexador will be found and made available
-to the caller.
+Of course, syntax errors in Regexador will be found and made available to the 
+caller.
 
 
 **Beginning at the Beginning**
 
-I've tried to "think ahead" so as not to paint myself into a corner
-too much.
+I've tried to "think ahead" so as not to paint myself into a corner too much.
 
-However, probably not all of this can be implemented in the first
-version. The current "working version" (0.2.7) has been implemented
-over a period of nine weeks.
+However, probably not all of this can be implemented in the earliest versions. 
+The original "working version" (0.2.7) was implemented over a period of nine 
+weeks.
 
-Therefore some of the syntax described in the following will not be
-available right away.
-
-Features still postponed:
+Therefore some of the functionality described here is not yet fully implemented.
+Features still postponed include:
   - intra-line comments:  #{...}
   - case/end
   - unsure about upto, thru
@@ -251,11 +250,13 @@ But data type matters, of course:
      n = "foo"
      m,n * "def"                          # Syntax error!
 
-The "match clause" uses all previous definitions to finally build the regular expression. It starts with "match" and ends with "end":
+The "match clause" uses all previous definitions to finally build the regular 
+expression. It starts with "match" and ends with "end":
     
      match "abc" | "def" | many `x end
    
-Named matches are only used inside the match clause; anywhere a pattern may be used, "@var = pattern" may also be used. 
+Named matches are only used inside the match clause; anywhere a pattern may be 
+used, "@var = pattern" may also be used. 
 
      match @first = (many %alpha) SPACES @last = (many %alpha) end
 
@@ -267,7 +268,7 @@ Multiple lines are fine (and more readable):
        @last = many %alpha
      end
 
- A "case" may be used for more complex alternatives (needed??):
+Planned: A "case" may be used for more complex alternatives. (Is this needed?)
 
      case
        when "abc" ...
@@ -275,7 +276,8 @@ Multiple lines are fine (and more readable):
        when "xyz" ...
      end
 
-Multiple "programs" can be concatenated, assuming the initial ones are all definitions and there is only one match clause at the end.
+Multiple "programs" can be concatenated, assuming the initial ones are all 
+definitions and there is only one match clause at the end.
 
      # Ruby code
      defs = "..."
@@ -372,6 +374,13 @@ Determine whether a credit card number is valid    Regex: /^(?:4[0-9]{12}(?:[0-9
 ### Update history
 
 This history has been maintained only since version 0.4.2
+
+*0.4.6*
+  - Moving from rspec to minitest
+  - Verifying compatibility with Ruby 2.6, 2.7
+  - improving gemspec
+  - improving README
+  - working on railroad diagrams
 
 *0.4.3*
   - Experimenting with lookarounds (pos/neg lookahead/behind)
